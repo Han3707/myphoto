@@ -8,6 +8,7 @@ import { colors } from './constants/colors';
 import { typography } from './constants/typography';
 import { spacing } from './constants/spacing';
 import { breakpoints } from './constants/breakpoints';
+import { useOverflow } from './contexts/OverflowContext';
 
 function App() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -15,6 +16,12 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sectionScrollEnabled, setSectionScrollEnabled] = useState(true);
+  const { setActiveSection } = useOverflow();
+
+  // currentSection이 변경될 때마다 OverflowContext의 activeSection 업데이트
+  useEffect(() => {
+    setActiveSection(currentSection);
+  }, [currentSection, setActiveSection]);
 
   const openProjectModal = useCallback((project) => {
     setSelectedProject(project);
@@ -48,11 +55,11 @@ function App() {
       if (isScrolling || !sectionScrollEnabled || isModalOpen) return;
       const delta = e.deltaY;
       if (Math.abs(delta) < 50) return;
-      
+
       if (isModalOpen) {
         return;
       }
-      
+
       setIsScrolling(true);
       if (delta > 0 && currentSection < 4) {
         setCurrentSection(prev => prev + 1);
@@ -135,18 +142,21 @@ function App() {
     width: '100%',
     transform: `translateY(-${currentSection * 100}vh)`,
     transition: 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    overflow: 'visible',
   };
 
   const sectionStyle = (index) => ({
     height: '100vh',
     width: '100%',
     background: getSectionBackground(index),
-    overflowY: 'auto',
+    overflowY: 'visible',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: index === 2 ? fixedNavigationStyle.paddingTop || spacing.xl : '0',
     paddingBottom: index === 2 ? `calc(${spacing['2xl']} + ${spacing.xl} + ${spacing.md} + ${spacing.md})` : '0',
+    position: 'relative',
+    zIndex: currentSection === index ? 50 : 1,
   });
 
   const getSectionBackground = (index) => {
@@ -158,7 +168,7 @@ function App() {
       case 2: // Experience
         return colors.gradients.subtle;
       case 3: // Projects
-        return colors.gradients.darkElegant;
+        return colors.surface.light;
       case 4: // Contact
         return colors.gradients.heroDepth;
       default:
@@ -166,33 +176,33 @@ function App() {
     }
   };
 
-  // 고정 네비게이션 바 스타일
+  // 고정 네비게이션 바 스타일 업데이트
   const fixedNavigationStyle = {
     position: 'fixed',
     bottom: spacing['2xl'],
     left: '50%',
     transform: 'translateX(-50%)',
     display: 'flex',
-    gap: spacing.lg,
-    background: 'rgba(255, 255, 255, 0.1)',
+    gap: spacing.sm,
+    background: 'rgba(0, 0, 0, 0.8)',  // 더 진한 배경색
     backdropFilter: 'blur(10px)',
     borderRadius: '50px',
     padding: `${spacing.md} ${spacing.xl}`,
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: 'none',  // 테두리 제거
     zIndex: 1000,
     opacity: isModalOpen ? 0 : 1, // 모달이 열려있을 때 숨김
     transition: 'opacity 0.3s ease',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',  // 그림자 추가
   };
 
-  // Conditional styling for fixedNavigationStyle
+  // 변경 - 항상 어두운 배경으로 통일
   const dynamicNavStyle = {
     ...fixedNavigationStyle,
-    background: currentSection === 1 || currentSection === 2 ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
-    border: currentSection === 1 || currentSection === 2 ? '1px solid rgba(0, 0, 0, 0.2)' : '1px solid rgba(255, 255, 255, 0.2)',
+    background: 'rgba(0, 0, 0, 0.8)',  // 항상 어두운 배경으로 통일
   };
 
   const navItemStyle = {
-    color: currentSection === 1 || currentSection === 2 ? colors.text.body : colors.text.onDark,
+    color: colors.text.onDark,  // 항상 밝은 색 텍스트
     textDecoration: 'none',
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
@@ -207,7 +217,7 @@ function App() {
 
   return (
     <div style={appStyle}>
-      <a 
+      <a
         href={`#${sections[currentSection].id}`}
         className="skip-link"
         onClick={(e) => {
@@ -221,7 +231,7 @@ function App() {
         메인 콘텐츠로 건너뛰기
       </a>
 
-      <main style={{...sectionsContainerStyle}} role="main" aria-label="포트폴리오 메인 콘텐츠">
+      <main style={{ ...sectionsContainerStyle }} role="main" aria-label="포트폴리오 메인 콘텐츠">
         {sections.map((section, index) => (
           <div style={sectionStyle(index)} id={section.id} key={section.id} tabIndex="-1">
             {index === 2 ? React.cloneElement(section.component, { currentSection }) : section.component}
@@ -231,7 +241,7 @@ function App() {
 
       {/* 모달 - 프로젝트 섹션에서만 표시 */}
       {isModalOpen && selectedProject && currentSection === 3 && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -244,11 +254,11 @@ function App() {
             justifyContent: 'center',
             zIndex: 1001,
             padding: spacing.md,
-          }} 
+          }}
           onClick={closeProjectModal}
           className="modal-overlay"
         >
-          <div 
+          <div
             style={{
               background: colors.surface.elevated,
               borderRadius: spacing.card.borderRadius,
@@ -259,11 +269,11 @@ function App() {
               overflowY: 'auto',
               position: 'relative',
               boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-            }} 
+            }}
             onClick={(e) => e.stopPropagation()}
             className="modal-content"
           >
-            <button 
+            <button
               style={{
                 position: 'absolute',
                 top: spacing.lg,
@@ -274,12 +284,12 @@ function App() {
                 cursor: 'pointer',
                 color: colors.text.secondary,
                 padding: spacing.xs,
-              }} 
+              }}
               onClick={closeProjectModal}
             >
               ×
             </button>
-            
+
             <div style={{ textAlign: 'center', marginBottom: spacing['2xl'] }}>
               <div style={{ fontSize: '3rem', marginBottom: spacing.md }}>
                 {selectedProject.image}
@@ -309,7 +319,7 @@ function App() {
                 color: selectedProject.color,
                 marginBottom: spacing.md,
               }}>
-                Problem
+                Challenge
               </h3>
               <p style={{
                 fontFamily: typography.fontFamily.body,
@@ -317,7 +327,7 @@ function App() {
                 color: colors.text.body,
                 lineHeight: typography.lineHeight.relaxed,
               }}>
-                {selectedProject.problem}
+                {selectedProject.challenge}
               </p>
             </div>
 
@@ -333,7 +343,7 @@ function App() {
                 gap: spacing.sm,
               }}>
                 <span>💡</span>
-                Challenge & Learning
+                My Role & Achievements
               </h3>
               <p style={{
                 fontFamily: typography.fontFamily.body,
@@ -345,7 +355,9 @@ function App() {
                 borderRadius: spacing.xs,
                 borderLeft: `4px solid ${colors.accent.cyan}`,
               }}>
-                {selectedProject.newTechFocus}
+                <strong>역할:</strong> {selectedProject.role}
+                <br /><br />
+                <strong>성과:</strong> {selectedProject.achievements}
               </p>
             </div>
 
@@ -385,7 +397,7 @@ function App() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                 gap: spacing.md,
               }}>
-                {selectedProject.techStack.map((tech) => (
+                {selectedProject.techDetails?.map((tech) => (
                   <div key={tech.name} style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -423,7 +435,7 @@ function App() {
                       ))}
                     </div>
                   </div>
-                ))}
+                )) || []}
               </div>
             </div>
 
@@ -478,28 +490,28 @@ function App() {
 
       {/* 고정 하단 네비게이션 바 */}
       <nav style={dynamicNavStyle} aria-label="메인 네비게이션">
-        <button 
+        <button
           style={navItemStyle}
           onClick={() => scrollToSection(1)}
           className="nav-item"
         >
           기술
         </button>
-        <button 
+        <button
           style={navItemStyle}
           onClick={() => scrollToSection(2)}
           className="nav-item"
         >
           경력
         </button>
-        <button 
+        <button
           style={navItemStyle}
           onClick={() => scrollToSection(3)}
           className="nav-item"
         >
           프로젝트
         </button>
-        <button 
+        <button
           style={navItemStyle}
           onClick={() => scrollToSection(4)}
           className="nav-item"

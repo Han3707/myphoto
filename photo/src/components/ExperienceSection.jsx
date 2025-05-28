@@ -1,330 +1,417 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import styled from 'styled-components';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
-import { spacing } from '../constants/spacing';
-import { breakpoints } from '../constants/breakpoints';
+import { useOverflow } from '../contexts/OverflowContext';
+
+// Styled Components
+const ExperienceContainer = styled.section`
+  padding: 60px 20px;
+  background: ${colors.surface.light || '#f5f5f5'};
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: ${props => props.$isActive ? 50 : 2};
+  box-sizing: border-box;
+`;
+
+const ContentContainer = styled.div`
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+`;
+
+const ExperienceHeader = styled.div`
+  text-align: center;
+  margin-bottom: 40px;
+`;
+
+const ExperienceTitle = styled(motion.h2)`
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: ${colors.text.onLight || '#333'};
+  margin-bottom: 16px;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+  }
+`;
+
+const ExperienceSubtitle = styled.p`
+  font-size: 1.2rem;
+  color: ${colors.text.body || '#666'};
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+`;
+
+const CareerGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+`;
+
+const CareerCard = styled(motion.div)`
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: ${props => props.$current ? '#ff4444' : '#000'};
+  }
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    min-height: auto;
+  }
+`;
+
+const Period = styled.div`
+  display: inline-block;
+  background: ${props => props.$current ? '#ff4444' : '#f8f8f8'};
+  color: ${props => props.$current ? 'white' : '#333'};
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border: ${props => props.$current ? 'none' : '1px solid #e0e0e0'};
+  width: fit-content;
+`;
+
+const Company = styled.div`
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 8px;
+  line-height: 1.3;
+`;
+
+const CompanySubtext = styled.small`
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+  display: block;
+  margin-top: 4px;
+`;
+
+const Position = styled.div`
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 20px;
+`;
+
+const Description = styled.div`
+  color: #555;
+  line-height: 1.7;
+  font-size: 15px;
+  margin-bottom: 25px;
+  flex-grow: 1;
+`;
+
+const Achievement = styled.div`
+  background: #f8f9fa;
+  border-left: 3px solid ${props => props.$current ? '#ff4444' : '#000'};
+  padding: 12px 16px;
+  margin: 15px 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: #555;
+`;
+
+const SkillsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+`;
+
+const SkillTag = styled.span`
+  background: #000;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #333;
+    transform: scale(1.05);
+  }
+`;
+
+const ShowMoreButton = styled.span`
+  background: #ff4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: #e03131;
+    transform: scale(1.05);
+  }
+`;
+
+// 스킬 태그들을 한 줄에 표시하기 위한 스타일 컴포넌트
+const FirstLineContainer = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: hidden;
+  margin-bottom: 8px;
+  width: 100%;
+`;
+
+// 나머지 스킬 태그들을 표시하기 위한 스타일 컴포넌트
+const RestOfSkillsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+`;
+
+const CurrentBadge = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #ff4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+`;
+
+const Duration = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #f0f0f0;
+  color: #666;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+`;
 
 const ExperienceSection = () => {
-  const [hoveredExperience, setHoveredExperience] = useState(null);
+  const { activeSection } = useOverflow();
+  const experiencesRef = useRef(null);
+  const [drawLine, setDrawLine] = useState(false);
+  const [expandedSkills, setExpandedSkills] = useState({});
+
+  // Toggle expanded skills for a specific experience
+  const toggleSkills = (experienceId) => {
+    setExpandedSkills(prev => ({
+      ...prev,
+      [experienceId]: !prev[experienceId]
+    }));
+  };
+
+  // 교차 관찰자로 애니메이션 트리거
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setDrawLine(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = experiencesRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.disconnect();
+      }
+    };
+  }, []);
+
+  // 스킬 태그 클릭 효과
+  const handleSkillTagClick = (e) => {
+    e.target.style.background = '#ff4444';
+    setTimeout(() => {
+      e.target.style.background = '#000';
+    }, 200);
+  };
 
   const experiences = [
     {
       id: 1,
-      company: "SSAFY (삼성 청년 SW 아카데미)",
-      position: "교육생",
-      period: "2024.01 - 2024.12",
-      type: "교육",
-      description: "1년간 집중적인 소프트웨어 개발 교육 과정을 통해 실무 역량을 기르고 있습니다.",
+      company: "개인 학습 & 프로젝트",
+      companySubtext: "",
+      position: "프론트엔드 개발자",
+      period: "2025.06 ~ 현재",
+      duration: "현재",
+      isCurrent: true,
+      description: "SSAFY 교육과정 수료 후 실무 역량 강화를 위한 지속적인 학습과 개인 프로젝트를 진행하고 있습니다. 최신 프론트엔드 기술 스택을 활용한 포트폴리오 구축과 실무 경험 축적에 집중하고 있습니다.",
       achievements: [
-        "알고리즘 문제 해결 능력 향상 (백준 골드 등급 달성)",
-        "팀 프로젝트 리더 경험 (3회)",
-        "Flutter, React 기반 풀스택 개발 경험",
-        "Git 협업 및 코드 리뷰 문화 체득"
+        "💡 React, TypeScript 기반 개인 프로젝트 진행 중"
       ],
-      skills: ["Java", "JavaScript", "Flutter", "React", "Git"],
-      color: colors.accent.primary,
-      icon: "🎓"
+      // 중요한 기술 스택을 앞에 배치
+      skills: ["React", "TypeScript", "Next.js", "Vue.js", "Redux", "Tailwind CSS", "Styled-Components", "GraphQL", "Jest", "Webpack", "개인 프로젝트"]
     },
     {
       id: 2,
-      company: "개인 프로젝트",
-      position: "개발자",
-      period: "2023.06 - 현재",
-      type: "개인",
-      description: "새로운 기술 스택을 학습하며 다양한 개인 프로젝트를 진행하고 있습니다.",
+      company: "SSAFY",
+      companySubtext: "Samsung Software Academy For Youth",
+      position: "교육생 / 프론트엔드 전공",
+      period: "2024.07 ~ 2025.06",
+      duration: "11개월",
+      isCurrent: false,
+      description: "삼성 청년 SW 아카데미에서 체계적인 소프트웨어 개발 교육을 받았습니다. 알고리즘, 자료구조부터 웹 개발 전반에 걸친 실무 중심의 커리큘럼을 통해 견고한 개발 기초를 다지고 팀 프로젝트를 통한 협업 경험을 쌓았습니다.",
       achievements: [
-        "실시간 펀딩 플랫폼 개발 (STOMP/WebSocket)",
-        "ML Kit 활용 모션 인식 피트니스 앱 개발",
-        "이미지 최적화 갤러리 앱 개발",
-        "성능 최적화 및 사용자 경험 개선에 집중"
+        "🏆 프론트엔드 리더로 3회 프로젝트 경험",
+        "💻 사용자 친화적인 UI/UX 설계와 구현"
       ],
-      skills: ["Flutter", "React Native", "WebSocket", "ML Kit", "Firebase"],
-      color: colors.accent.secondary,
-      icon: "💻"
+      // 중요한 기술 스택을 앞에 배치
+      skills: ["JavaScript", "Vue.js", "Spring Boot", "MySQL", "Git", "React", "Node.js", "Express", "Bootstrap", "Figma", "Docker", "팀 프로젝트"]
     }
   ];
 
-  const sectionStyle = {
-    padding: `${spacing['2xl']} ${spacing.lg}`,
-    background: colors.surface.light,
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-  };
+  // 섹션이 활성화되면 z-index 값을 높게 설정
+  const isActive = activeSection === 2;
 
-  const containerStyle = {
-    maxWidth: spacing.container.xl,
-    margin: '0 auto',
-    width: '100%',
-  };
-
-  const titleStyle = {
-    fontFamily: typography.fontFamily.heading,
-    fontSize: typography.fontSize['3xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing['2xl'],
-  };
-
-  const timelineStyle = {
-    position: 'relative',
-    paddingLeft: spacing['2xl'],
-  };
-
-  const timelineLineStyle = {
-    position: 'absolute',
-    left: spacing.lg,
-    top: 0,
-    bottom: 0,
-    width: '2px',
-    background: colors.surface.border,
-  };
-
-  const experienceCardStyle = (experience, isHovered) => ({
-    position: 'relative',
-    background: colors.surface.elevated,
-    borderRadius: spacing.card.borderRadius,
-    padding: spacing.xl,
-    marginBottom: spacing.xl,
-    boxShadow: isHovered 
-      ? '0 12px 35px rgba(0, 0, 0, 0.12)'
-      : '0 4px 12px rgba(0, 0, 0, 0.08)',
-    transition: 'all 0.3s ease-out',
-    transform: isHovered ? 'translateX(8px)' : 'translateX(0)',
-    border: `2px solid ${isHovered ? experience.color : colors.surface.border}`,
-    cursor: 'pointer',
-  });
-
-  const timelineDotStyle = (experience, isHovered) => ({
-    position: 'absolute',
-    left: `-${spacing.lg}`,
-    top: spacing.lg,
-    width: '16px',
-    height: '16px',
-    borderRadius: '50%',
-    background: experience.color,
-    border: `3px solid ${colors.surface.light}`,
-    boxShadow: isHovered ? `0 0 15px ${experience.color}40` : '0 2px 8px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    transform: isHovered ? 'scale(1.2)' : 'scale(1)',
-  });
-
-  const experienceHeaderStyle = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
-  };
-
-  const experienceIconStyle = (experience, isHovered) => ({
-    fontSize: typography.fontSize['2xl'],
-    width: '50px',
-    height: '50px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
-    background: `${experience.color}15`,
-    transition: 'all 0.3s ease',
-    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-  });
-
-  const experienceInfoStyle = {
-    flex: 1,
-  };
-
-  const companyNameStyle = {
-    fontFamily: typography.fontFamily.heading,
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  };
-
-  const positionStyle = {
-    fontFamily: typography.fontFamily.body,
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  };
-
-  const periodStyle = {
-    fontFamily: typography.fontFamily.body,
-    fontSize: typography.fontSize.sm,
-    color: colors.text.muted,
-    marginBottom: spacing.sm,
-  };
-
-  const typeBadgeStyle = (experience) => ({
-    display: 'inline-block',
-    background: `${experience.color}15`,
-    color: experience.color,
-    padding: `${spacing.xs} ${spacing.sm}`,
-    borderRadius: '20px',
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
-    marginBottom: spacing.md,
-  });
-
-  const descriptionStyle = {
-    fontFamily: typography.fontFamily.body,
-    fontSize: typography.fontSize.base,
-    color: colors.text.body,
-    lineHeight: typography.lineHeight.relaxed,
-    marginBottom: spacing.lg,
-  };
-
-  const achievementsStyle = {
-    marginBottom: spacing.lg,
-  };
-
-  const achievementsTitleStyle = {
-    fontFamily: typography.fontFamily.heading,
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  };
-
-  const achievementItemStyle = {
-    fontFamily: typography.fontFamily.body,
-    fontSize: typography.fontSize.sm,
-    color: colors.text.body,
-    lineHeight: typography.lineHeight.relaxed,
-    marginBottom: spacing.sm,
-    paddingLeft: spacing.md,
-    position: 'relative',
-  };
-
-  const achievementBulletStyle = (experience) => ({
-    position: 'absolute',
-    left: 0,
-    top: '0.5em',
-    width: '4px',
-    height: '4px',
-    borderRadius: '50%',
-    background: experience.color,
-  });
-
-  const skillsContainerStyle = {
-    display: 'flex',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-  };
-
-  const skillTagStyle = (experience) => ({
-    background: colors.neutral.gray50,
-    color: colors.text.secondary,
-    padding: `${spacing.xs} ${spacing.sm}`,
-    borderRadius: spacing.xs,
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
-    border: `1px solid ${colors.surface.border}`,
-  });
+  // 초기에 보여줄 스킬 갯수
+  const initialSkillCount = 4; // 첫 줄에 나타낼 기술 스택 수 (+ 버튼 포함하여 5개)
 
   return (
-    <section id="experience" style={sectionStyle}>
-      <div style={containerStyle}>
-        <h2 style={titleStyle}>
-          저의 경력과 경험입니다.
-        </h2>
+    <ExperienceContainer ref={experiencesRef} $isActive={isActive}>
+      <ContentContainer>
+        <ExperienceHeader>
+          <ExperienceTitle
+            initial={{ opacity: 0 }}
+            animate={{ opacity: drawLine ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Career
+          </ExperienceTitle>
+          <ExperienceSubtitle>
+            새로운 도전을 통해 성장해온 여정
+          </ExperienceSubtitle>
+        </ExperienceHeader>
 
-        <div style={timelineStyle}>
-          <div style={timelineLineStyle} />
-          
-          {experiences.map((experience) => {
-            const isHovered = hoveredExperience === experience.id;
-            
-            return (
-              <div
-                key={experience.id}
-                style={experienceCardStyle(experience, isHovered)}
-                onMouseEnter={() => setHoveredExperience(experience.id)}
-                onMouseLeave={() => setHoveredExperience(null)}
-              >
-                <div style={timelineDotStyle(experience, isHovered)} />
-                
-                <div style={experienceHeaderStyle}>
-                  <div style={experienceIconStyle(experience, isHovered)}>
-                    {experience.icon}
-                  </div>
-                  
-                  <div style={experienceInfoStyle}>
-                    <h3 style={companyNameStyle}>
-                      {experience.company}
-                    </h3>
-                    <p style={positionStyle}>
-                      {experience.position}
-                    </p>
-                    <p style={periodStyle}>
-                      {experience.period}
-                    </p>
-                    <span style={typeBadgeStyle(experience)}>
-                      {experience.type}
-                    </span>
-                  </div>
-                </div>
-                
-                <p style={descriptionStyle}>
-                  {experience.description}
-                </p>
-                
-                <div style={achievementsStyle}>
-                  <h4 style={achievementsTitleStyle}>
-                    주요 성과
-                  </h4>
-                  {experience.achievements.map((achievement, index) => (
-                    <div key={index} style={achievementItemStyle}>
-                      <div style={achievementBulletStyle(experience)} />
-                      {achievement}
-                    </div>
-                  ))}
-                </div>
-                
-                <div style={skillsContainerStyle}>
-                  {experience.skills.map((skill) => (
-                    <span key={skill} style={skillTagStyle(experience)}>
+        <CareerGrid>
+          {experiences.map((experience, index) => (
+            <CareerCard
+              key={experience.id}
+              $current={experience.isCurrent}
+              initial={{ opacity: 0, y: 30 }}
+              animate={drawLine ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+            >
+              {experience.isCurrent ? (
+                <CurrentBadge>현재</CurrentBadge>
+              ) : (
+                <Duration>{experience.duration}</Duration>
+              )}
+
+              <Period $current={experience.isCurrent}>{experience.period}</Period>
+
+              <Company>
+                {experience.company}
+                {experience.companySubtext && (
+                  <CompanySubtext>{experience.companySubtext}</CompanySubtext>
+                )}
+              </Company>
+
+              <Position>{experience.position}</Position>
+
+              <Description>{experience.description}</Description>
+
+              {experience.achievements.map((achievement, i) => (
+                <Achievement key={i} $current={experience.isCurrent}>
+                  {achievement}
+                </Achievement>
+              ))}
+
+              <SkillsContainer>
+                {/* 첫 번째 줄 - 고정된 수의 스킬 + 더보기 버튼 */}
+                <FirstLineContainer>
+                  {experience.skills.slice(0, initialSkillCount).map((skill, i) => (
+                    <SkillTag key={i} onClick={handleSkillTagClick}>
                       {skill}
-                    </span>
+                    </SkillTag>
                   ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
-      <style jsx>{`
-        /* 반응형 디자인 */
-        ${breakpoints.media.maxTablet} {
-          .timeline {
-            padding-left: ${spacing.xl} !important;
-          }
-          
-          h2 {
-            font-size: ${typography.fontSize['2xl']} !important;
-          }
-        }
+                  {/* 스킬이 초기 표시 개수보다 많을 경우 더보기 버튼 표시 */}
+                  {experience.skills.length > initialSkillCount && (
+                    <ShowMoreButton onClick={() => toggleSkills(experience.id)}>
+                      {expandedSkills[experience.id] ? '접기' : `+${experience.skills.length - initialSkillCount}`}
+                    </ShowMoreButton>
+                  )}
+                </FirstLineContainer>
 
-        ${breakpoints.media.maxMobile} {
-          .timeline {
-            padding-left: ${spacing.lg} !important;
-          }
-
-          h2 {
-            font-size: ${typography.fontSize.xl} !important;
-          }
-          
-          .experience-header {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-          }
-        }
-      `}</style>
-    </section>
+                {/* 확장된 경우에만 나머지 스킬 표시 */}
+                {expandedSkills[experience.id] && (
+                  <RestOfSkillsContainer>
+                    {experience.skills.slice(initialSkillCount).map((skill, i) => (
+                      <SkillTag key={i} onClick={handleSkillTagClick}>
+                        {skill}
+                      </SkillTag>
+                    ))}
+                  </RestOfSkillsContainer>
+                )}
+              </SkillsContainer>
+            </CareerCard>
+          ))}
+        </CareerGrid>
+      </ContentContainer>
+    </ExperienceContainer>
   );
 };
 
