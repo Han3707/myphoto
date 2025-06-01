@@ -1,6 +1,6 @@
-import { typography } from '../constants/typography';
-import { spacing } from '../constants/spacing';
+import React from 'react';
 import { useOverflow } from '../contexts/OverflowContext';
+import * as S from './ContactSection.styles';
 
 // Velog SVG Icon Component
 const VelogIcon = () => (
@@ -36,215 +36,45 @@ const ContactSection = () => {
   // 섹션이 연락처 섹션이면 z-index 값을 높게 설정
   const isActive = activeSection === 4;
 
-  const sectionStyle = {
-    padding: 0,
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-    minHeight: '100vh',
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    overflow: 'visible',
-    zIndex: isActive ? 50 : 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
-  const contactSectionStyle = {
-    maxWidth: '800px',
-    width: '90%',
-    padding: `${spacing['4xl']} ${spacing.xl}`,
-    textAlign: 'center',
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '20px',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-    backdropFilter: 'blur(10px)',
-    margin: spacing.lg,
-  };
-
-  const sectionTagStyle = {
-    display: 'inline-block',
-    background: '#000',
-    color: '#fff',
-    padding: '8px 20px',
-    borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: 500,
-    marginBottom: '30px',
-    letterSpacing: '0.5px',
-    animation: 'pulse 2s infinite',
-  };
-
-  const titleStyle = {
-    fontSize: '48px',
-    fontWeight: 800,
-    color: '#1a1a1a',
-    lineHeight: 1.2,
-    marginBottom: '20px',
-    letterSpacing: '-1px',
-    fontFamily: typography.fontFamily.heading,
-  };
-
-  const subtitleStyle = {
-    fontSize: '18px',
-    color: '#666',
-    lineHeight: 1.6,
-    marginBottom: '50px',
-    maxWidth: '500px',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    fontFamily: typography.fontFamily.body,
-  };
-
-  const contactButtonsStyle = {
-    display: 'flex',
-    gap: '20px',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    marginBottom: '40px',
-  };
-
-  const contactBtnBaseStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '16px 28px',
-    border: 'none',
-    borderRadius: '50px',
-    fontSize: '16px',
-    fontWeight: 600,
-    textDecoration: 'none',
-    transition: 'all 0.3s ease',
-    cursor: 'pointer',
-    position: 'relative',
-    overflow: 'hidden',
-  };
-
-  const btnPrimaryStyle = {
-    ...contactBtnBaseStyle,
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: 'white',
-    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
-  };
-
-  const btnSecondaryStyle = {
-    ...contactBtnBaseStyle,
-    background: '#fff',
-    color: '#333',
-    border: '2px solid #e0e0e0',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
-  };
-
-  const btnDarkStyle = {
-    ...contactBtnBaseStyle,
-    background: '#1a1a1a',
-    color: 'white',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-  };
-
-  const contactInfoStyle = {
-    paddingTop: '40px',
-    borderTop: '1px solid #e0e0e0',
-  };
-
-  const contactInfoTextStyle = {
-    color: '#888',
-    fontSize: '14px',
-    marginBottom: '10px',
-  };
-
-  const contactEmailStyle = {
-    color: '#667eea',
-    fontWeight: 600,
-    textDecoration: 'none',
-    fontSize: '16px',
-  };
-
-  // Media query styles for responsiveness
-  const responsiveStyles = window.innerWidth <= 768 ? {
-    contactSectionStyle: {
-      padding: '40px 20px',
-      margin: '20px',
-    },
-    titleStyle: {
-      fontSize: '36px',
-    },
-    contactButtonsStyle: {
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    contactBtnBaseStyle: {
-      width: '100%',
-      maxWidth: '280px',
-      justifyContent: 'center',
-    }
-  } : {};
-
-  // Apply responsive styles if needed
-  const finalContactSectionStyle = {
-    ...contactSectionStyle,
-    ...(responsiveStyles.contactSectionStyle || {})
-  };
-
-  const finalTitleStyle = {
-    ...titleStyle,
-    ...(responsiveStyles.titleStyle || {})
-  };
-
-  const finalContactButtonsStyle = {
-    ...contactButtonsStyle,
-    ...(responsiveStyles.contactButtonsStyle || {})
-  };
-
   return (
-    <section id="contact" style={sectionStyle}>
-      <div style={finalContactSectionStyle} className="fade-in">
-        <div style={sectionTagStyle}>Contact Me</div>
+    <S.ContactSectionContainer id="contact" $isActive={isActive}>
+      <S.ContactContent className="fade-in">
+        <S.SectionTag>Contact Me</S.SectionTag>
 
-        <h2 style={finalTitleStyle}>
+        <S.ContactTitle>
           함께 협업하고 싶다면<br />
           언제든 연락주세요!
-        </h2>
+        </S.ContactTitle>
 
-        <p style={subtitleStyle}>
+        <S.ContactSubtitle>
           새로운 프로젝트나 흥미로운 아이디어가 있으시다면 <br></br>주저하지 마시고 연락해 주세요.<br />
-        </p>
+        </S.ContactSubtitle>
 
-        <div style={finalContactButtonsStyle} className="btn-animation">
-          <a href="mailto:contact@hanmin.dev" style={btnPrimaryStyle}>
+        <S.ContactButtons className="btn-animation">
+          <S.PrimaryButton href="mailto:contact@hanmin.dev">
             <EmailIcon />
             이메일 보내기
-          </a>
+          </S.PrimaryButton>
 
-          <a href="https://github.com/hanmin-kim" target="_blank" rel="noopener noreferrer" style={btnSecondaryStyle}>
+          <S.SecondaryButton href="https://github.com/hanmin-kim" target="_blank" rel="noopener noreferrer">
             <GithubIcon />
             GitHub
-          </a>
+          </S.SecondaryButton>
 
-          <a href="https://velog.io/@yourusername" target="_blank" rel="noopener noreferrer" style={btnDarkStyle}>
+          <S.DarkButton href="https://velog.io/@yourusername" target="_blank" rel="noopener noreferrer">
             <VelogIcon />
             벨로그
-          </a>
-        </div>
+          </S.DarkButton>
+        </S.ContactButtons>
 
-        <div style={contactInfoStyle} className="info-animation">
-          <p style={contactInfoTextStyle}>빠른 응답을 원하신다면</p>
-          <a href="mailto:contact@hanmin.dev" style={contactEmailStyle}>contact@hanmin.dev</a>
-        </div>
-      </div>
+        <S.ContactInfo className="info-animation">
+          <S.ContactInfoText>빠른 응답을 원하신다면</S.ContactInfoText>
+          <S.ContactEmail href="mailto:contact@hanmin.dev">contact@hanmin.dev</S.ContactEmail>
+        </S.ContactInfo>
+      </S.ContactContent>
 
       {/* Add global style to ensure full height rendering */}
       <style jsx global>{`
-        html, body {
-          height: 100%;
-          margin: 0;
-          padding: 0;
-        }
-        #__next, main {
-          height: 100%;
-        }
-
         @keyframes pulse {
           0% {
             transform: scale(1);
@@ -261,53 +91,8 @@ const ContactSection = () => {
             box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
           }
         }
-
-        .btn-animation a {
-          transition: all 0.3s ease;
-        }
-        
-        .btn-animation a:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-animation a:hover:nth-child(1) {
-          background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-        }
-        
-        .btn-animation a:hover:nth-child(2) {
-          border-color: #667eea;
-          color: #667eea;
-        }
-        
-        .btn-animation a:hover:nth-child(3) {
-          background: #333;
-        }
-        
-        .btn-animation a::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          transition: left 0.7s;
-        }
-        
-        .btn-animation a:hover::before {
-          left: 100%;
-        }
-        
-        .icon {
-          transition: transform 0.3s ease;
-        }
-        
-        .btn-animation a:hover .icon {
-          transform: scale(1.2);
-        }
       `}</style>
-    </section>
+    </S.ContactSectionContainer>
   );
 };
 

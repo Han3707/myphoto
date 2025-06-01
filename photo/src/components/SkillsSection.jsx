@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import * as S from './SkillsSection.styles';
 import { useOverflow } from '../contexts/OverflowContext';
 
 const SkillsSection = () => {
@@ -6,9 +7,135 @@ const SkillsSection = () => {
   const observerRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const animationRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const scrollDirectionRef = useRef(1); // 1: 오른쪽, -1: 왼쪽
+  const [activeCategory, setActiveCategory] = useState('languages'); // 기본값: 프로그래밍 언어
+
+  // 스킬 카테고리 데이터
+  const skillCategories = [
+    {
+      id: 'languages',
+      title: '프로그래밍 언어',
+      color: '#FF6B6B',
+      skills: [
+        {
+          name: 'JavaScript(ES 6+)',
+          rating: 4,
+          description: [
+            '비동기 처리(fetch/Promise)·모듈 시스템·클린 코드 패턴을 적용해 공통 유틸 제작'
+          ]
+        },
+        {
+          name: 'Dart',
+          rating: 4,
+          description: [
+            'Flutter 앱 개발을 위한 Dart 언어 능숙한 활용',
+            '비동기 프로그래밍 및 스트림 처리 구현'
+          ]
+        },
+        {
+          name: 'HTML 5',
+          rating: 4,
+          description: [
+            '시맨틱 마크업·WAI-ARIA 적용',
+            'Flutter Web 뷰·React SEO 태그로 접근성/검색성 고려'
+          ]
+        },
+        {
+          name: 'CSS 3 / SCSS',
+          rating: 3,
+          description: [
+            'Flex·Grid·Animation으로 반응형 구성',
+            '디자인 시스템 토큰(Figma) 매칭'
+          ]
+        },
+        {
+          name: 'TypeScript',
+          rating: 4,
+          description: [
+            '타입 안정성을 갖춘 개발 환경 구축',
+            '인터페이스와 타입 정의로 코드 품질 향상'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'frameworks',
+      title: '프레임워크',
+      color: '#4C6EF5', // 색상 변경 (더 선명한 블루)
+      skills: [
+        {
+          name: 'Flutter',
+          rating: 4,
+          description: [
+            'Riverpod·GoRouter로 모듈화',
+            'WebSocket(STOMP)·OAuth 연동',
+            'cached_network_image로 이미지 캐싱 최적화',
+            'BLE Mesh 실험까지 모바일 2종 프로젝트 전체 화면 구현'
+          ]
+        },
+        {
+          name: 'React (+ Vite)',
+          rating: 4,
+          description: [
+            '상태 관리(Zustand)·폼(react-hook-form)·차트(Recharts) 활용',
+            '판매자 관리 SPA 전 페이지 디자인 & 개발'
+          ]
+        },
+        {
+          name: 'Kotlin (Android)',
+          rating: 3,
+          description: [
+            'BLE Mesh 채팅 – 큐 시스템으로 패킷 손실 30%→5% ↓',
+            'Activity-Service 구조 이해',
+            'Jetpack Compose 활용'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tools',
+      title: '도구 & 기술',
+      color: '#38B2AC', // 색상 변경 (더 선명한 틸)
+      skills: [
+        {
+          name: 'WebSocket / STOMP',
+          rating: 3,
+          description: [
+            '실시간 펀딩 금액·채팅 구현',
+            '재연결 로직(최대 5회)로 신뢰성 확보'
+          ]
+        },
+        {
+          name: 'OAuth 2.0 / JWT',
+          rating: 3,
+          description: [
+            'Google OAuth 토큰 → 백엔드 JWT 교환 패턴 설계',
+            'flutter_secure_storage 암호화'
+          ]
+        },
+        {
+          name: 'Git / GitLab & Jira',
+          rating: 4,
+          description: [
+            'Git Flow·CI 파이프라인 구성',
+            '1주 스프린트+데일리 스크럼 운영'
+          ]
+        },
+        {
+          name: 'Figma',
+          rating: 4,
+          description: [
+            '3번의 프로젝트 전체 UX 및 UI 키트 단독 제작'
+          ]
+        }
+      ]
+    }
+  ];
 
   useEffect(() => {
     // 스크롤 애니메이션
@@ -56,7 +183,7 @@ const SkillsSection = () => {
       const elapsed = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
-      if (isHovering) {
+      if (isHovering || isDragging) {
         animationRef.current = requestAnimationFrame(autoScroll);
         return;
       }
@@ -85,7 +212,48 @@ const SkillsSection = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isHovering]);
+  }, [isHovering, isDragging]);
+
+  // 드래그 스크롤 기능 구현
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    scrollContainerRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    scrollContainerRef.current.style.cursor = 'grab';
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // 스크롤 속도 조절
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    scrollPositionRef.current = scrollContainerRef.current.scrollLeft;
+  };
+
+  // 터치 이벤트 처리 (모바일)
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    scrollPositionRef.current = scrollContainerRef.current.scrollLeft;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
 
   // 마우스 호버 시 자동 스크롤 일시정지
   const handleMouseEnter = () => {
@@ -94,6 +262,43 @@ const SkillsSection = () => {
 
   const handleMouseLeave = () => {
     setIsHovering(false);
+    if (!isDragging) {
+      handleMouseUp();
+    }
+  };
+
+  // 스크롤 버튼 기능
+  const scrollTo = (direction) => {
+    const container = scrollContainerRef.current;
+    const scrollAmount = container.clientWidth * 0.8; // 80% 너비만큼 스크롤
+    const newPosition = direction === 'right'
+      ? container.scrollLeft + scrollAmount
+      : container.scrollLeft - scrollAmount;
+
+    container.scrollTo({
+      left: newPosition,
+      behavior: 'smooth'
+    });
+
+    scrollPositionRef.current = newPosition;
+  };
+
+  // 특정 카테고리로 스크롤
+  const scrollToCategory = (categoryId) => {
+    setActiveCategory(categoryId); // active 상태 업데이트
+
+    const element = document.getElementById(categoryId);
+    if (element) {
+      const container = scrollContainerRef.current;
+      const elementOffset = element.offsetLeft - container.offsetLeft;
+
+      container.scrollTo({
+        left: elementOffset - 40, // 좌측 여백 추가
+        behavior: 'smooth'
+      });
+
+      scrollPositionRef.current = elementOffset - 40;
+    }
   };
 
   // 섹션이 스킬 섹션이면 z-index 값을 높게 설정
@@ -112,390 +317,116 @@ const SkillsSection = () => {
   };
 
   return (
-    <section className="skills-section">
-      <div className="skills-container">
-        <h2 className="section-title">한 눈에 보는 Skills</h2>
-        <p className="section-subtitle">새로운 기술에 대한 자신감 100%</p>
+    <S.SkillsSectionContainer $isActive={isActive}>
+      <S.ContentContainer>
+        <S.SectionTitle>한 눈에 보는 Skills</S.SectionTitle>
+        <S.SectionSubtitle>새로운 기술에 대한 자신감 100%</S.SectionSubtitle>
 
-        <div
-          className="skills-scroll-container"
-          ref={scrollContainerRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="skills-grid">
-            <div className="skill-category">
-              <h3 className="category-title">Flutter / Dart</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>Riverpod·GoRouter로 모듈화</li>
-                  <li>WebSocket(STOMP)·OAuth 연동</li>
-                  <li>cached_network_image로 이미지 캐싱 최적화</li>
-                  <li>BLE Mesh 실험까지 모바일 2종 프로젝트 전체 화면 구현</li>
-                </ul>
-              </div>
-            </div>
+        {/* 카테고리 네비게이션 */}
+        <S.CategoryNav>
+          {skillCategories.map((category) => (
+            <S.CategoryNavButton
+              key={category.id}
+              $borderColor={category.color}
+              $isActive={activeCategory === category.id}
+              onClick={() => scrollToCategory(category.id)}
+            >
+              {category.title}
+            </S.CategoryNavButton>
+          ))}
+        </S.CategoryNav>
 
-            <div className="skill-category">
-              <h3 className="category-title">React (+ Vite) / TypeScript</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>상태 관리(Zustand)·폼(react-hook-form)·차트(Recharts) 활용</li>
-                  <li>판매자 관리 SPA 전 페이지 디자인 & 개발</li>
-                </ul>
-              </div>
-            </div>
+        {/* 스크롤 컨트롤 버튼 */}
+        <S.ScrollControls>
+          <S.ScrollButton
+            className="scroll-left"
+            onClick={() => scrollTo('left')}
+            aria-label="왼쪽으로 스크롤"
+          >
+            &#10094;
+          </S.ScrollButton>
 
-            <div className="skill-category">
-              <h3 className="category-title">JavaScript(ES 6+)</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>비동기 처리(fetch/Promise)·모듈 시스템·클린 코드 패턴을 적용해 공통 유틸 제작</li>
-                </ul>
-              </div>
-            </div>
+          <S.SkillsScrollContainer
+            ref={scrollContainerRef}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <S.SkillsGrid>
+              {skillCategories.map((category) => (
+                <S.SkillCategoryGroup key={category.id} id={category.id}>
+                  <S.CategoryGroupTitle $color={category.color}>
+                    {category.title}
+                  </S.CategoryGroupTitle>
+                  <S.CategorySkills>
+                    {category.skills.map((skill, index) => (
+                      <S.SkillCategory
+                        key={`${category.id}-${index}`}
+                        className="skill-category"
+                        $categoryColor={category.color}
+                      >
+                        <S.CategoryTitle>{skill.name}</S.CategoryTitle>
+                        <S.SkillRating $color={category.color}>
+                          {renderStars(skill.rating)}
+                        </S.SkillRating>
+                        <S.SkillDescription>
+                          <ul>
+                            {skill.description.map((item, i) => (
+                              <li key={i}>{item}</li>
+                            ))}
+                          </ul>
+                        </S.SkillDescription>
+                      </S.SkillCategory>
+                    ))}
+                  </S.CategorySkills>
+                </S.SkillCategoryGroup>
+              ))}
+            </S.SkillsGrid>
+          </S.SkillsScrollContainer>
 
-            <div className="skill-category">
-              <h3 className="category-title">HTML 5</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>시맨틱 마크업·WAI-ARIA 적용</li>
-                  <li>Flutter Web 뷰·React SEO 태그로 접근성/검색성 고려</li>
-                </ul>
-              </div>
-            </div>
+          <S.ScrollButton
+            className="scroll-right"
+            onClick={() => scrollTo('right')}
+            aria-label="오른쪽으로 스크롤"
+          >
+            &#10095;
+          </S.ScrollButton>
+        </S.ScrollControls>
 
-            <div className="skill-category">
-              <h3 className="category-title">CSS 3 / SCSS</h3>
-              <div className="skill-rating">{renderStars(3)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>Flex·Grid·Animation으로 반응형 구성</li>
-                  <li>디자인 시스템 토큰(Figma) 매칭</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="skill-category">
-              <h3 className="category-title">Kotlin (Android)</h3>
-              <div className="skill-rating">{renderStars(3)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>BLE Mesh 채팅 – 큐 시스템으로 패킷 손실 30%→5% ↓</li>
-                  <li>Activity-Service 구조 이해</li>
-                  <li>Jetpack Compose 활용용</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="skill-category">
-              <h3 className="category-title">WebSocket / STOMP</h3>
-              <div className="skill-rating">{renderStars(3)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>실시간 펀딩 금액·채팅 구현</li>
-                  <li>재연결 로직(최대 5회)로 신뢰성 확보</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="skill-category">
-              <h3 className="category-title">OAuth 2.0 / JWT</h3>
-              <div className="skill-rating">{renderStars(3)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>Google OAuth 토큰 → 백엔드 JWT 교환 패턴 설계</li>
-                  <li>flutter_secure_storage 암호화</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="skill-category">
-              <h3 className="category-title">Git / GitLab & Jira</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>Git Flow·CI 파이프라인 구성</li>
-                  <li>1주 스프린트+데일리 스크럼 운영</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="skill-category">
-              <h3 className="category-title">Figma</h3>
-              <div className="skill-rating">{renderStars(4)}</div>
-              <div className="skill-description">
-                <ul>
-                  <li>3번의 프로젝트 전체 UX 및 UI 키트 단독 제작</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* 스크롤 안내 */}
+        <S.ScrollHint>
+          <S.HintIcon>👆</S.HintIcon>
+          카드를 드래그하여 더 많은 스킬을 확인하세요
+        </S.ScrollHint>
 
         {/* 통계 섹션 */}
-        <div className="stats-container">
-          <div className="stats-section">
-            <div className="stat-item">
-              <span className="stat-number">1년+</span>
-              <span className="stat-label">개발 경력</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">3+</span>
-              <span className="stat-label">프로젝트</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">10+</span>
-              <span className="stat-label">기술 스택</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">100%</span>
-              <span className="stat-label">새로운 기술 자신감</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .skills-section {
-          background: #FAFAFA;
-          min-height: 100vh;
-          padding: 100px 20px 120px;
-          position: relative;
-          z-index: ${isActive ? 50 : 4};
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        .skills-container {
-          max-width: 1600px;
-          width: 95%;
-          margin: 0 auto;
-        }
-
-        .section-title {
-          font-size: 4rem;
-          font-weight: 900;
-          color: #000;
-          text-align: center;
-          margin-bottom: 20px;
-          position: relative;
-        }
-
-        .section-subtitle {
-          font-size: 1.2rem;
-          color: #666;
-          text-align: center;
-          margin-bottom: 40px;
-          font-weight: 400;
-        }
-
-        .skills-scroll-container {
-          width: 100%;
-          overflow-x: auto;
-          padding: 20px 0;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          margin-bottom: 80px;
-        }
-
-        .skills-scroll-container::-webkit-scrollbar {
-          display: none;
-        }
-
-        .skills-grid {
-          display: flex;
-          gap: 25px;
-          padding: 10px 0;
-          min-width: max-content;
-        }
-
-        .skill-category {
-          background: white;
-          border-radius: 16px;
-          padding: 30px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-          transition: all 0.4s ease;
-          position: relative;
-          overflow: hidden;
-          width: 330px;
-          flex-shrink: 0;
-        }
-
-        .skill-category::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 4px;
-          background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1);
-          transform: scaleX(0);
-          transform-origin: left;
-          transition: transform 0.6s ease;
-        }
-
-        .skill-category:hover::before {
-          transform: scaleX(1);
-        }
-
-        .skill-category:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .category-title {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: #000;
-          margin-bottom: 15px;
-        }
-
-        .skill-rating {
-          margin-bottom: 20px;
-          font-size: 1.4rem;
-        }
-
-        .star {
-          color: #ddd;
-          margin-right: 2px;
-        }
-
-        .star.filled {
-          color: #FF6B6B;
-        }
-
-        .skill-description {
-          color: #666;
-        }
-
-        .skill-description ul {
-          padding-left: 20px;
-          margin: 0;
-        }
-
-        .skill-description li {
-          margin-bottom: 8px;
-          font-size: 0.9rem;
-          line-height: 1.5;
-        }
-
-        /* 통계 섹션 컨테이너 */
-        .stats-container {
-          width: 100%;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-
-        /* 통계 섹션 */
-        .stats-section {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 50px;
-          padding: 35px 50px;
-          border-radius: 16px;
-          background: white;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        }
-
-        .stat-item {
-          text-align: center;
-          position: relative;
-        }
-
-        .stat-number {
-          font-size: 3.5rem;
-          font-weight: 900;
-          color: #FF6B6B;
-          display: block;
-          margin-bottom: 10px;
-        }
-
-        .stat-label {
-          font-size: 1rem;
-          color: #666;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        /* 반응형 */
-        @media (max-width: 1200px) {
-          .stats-section {
-            grid-template-columns: repeat(4, 1fr);
-            padding: 30px;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .section-title {
-            font-size: 2.8rem;
-          }
-
-          .skills-section {
-            padding: 80px 20px 100px;
-          }
-
-          .stats-section {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            padding: 25px 20px;
-          }
-
-          .stat-number {
-            font-size: 2.5rem;
-          }
-
-          .skill-category {
-            width: 300px;
-            padding: 25px;
-          }
-          
-          .skills-container {
-            width: 95%;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .section-title {
-            font-size: 2.2rem;
-          }
-          
-          .skills-section {
-            padding: 60px 15px 80px;
-          }
-          
-          .skill-category {
-            width: 280px;
-            padding: 20px;
-          }
-          
-          .category-title {
-            font-size: 1.2rem;
-          }
-          
-          .stats-section {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            padding: 20px 15px;
-          }
-          
-          .stat-number {
-            font-size: 2rem;
-          }
-          
-          .skills-container {
-            width: 100%;
-          }
-        }
-      `}</style>
-    </section>
+        <S.StatsContainer>
+          <S.StatsSection>
+            <S.StatItem>
+              <S.StatNumber>1년+</S.StatNumber>
+              <S.StatLabel>개발 경력</S.StatLabel>
+            </S.StatItem>
+            <S.StatItem>
+              <S.StatNumber>3+</S.StatNumber>
+              <S.StatLabel>프로젝트</S.StatLabel>
+            </S.StatItem>
+            <S.StatItem>
+              <S.StatNumber>10+</S.StatNumber>
+              <S.StatLabel>기술 스택</S.StatLabel>
+            </S.StatItem>
+            <S.StatItem>
+              <S.StatNumber>100%</S.StatNumber>
+              <S.StatLabel>새로운 기술 자신감</S.StatLabel>
+            </S.StatItem>
+          </S.StatsSection>
+        </S.StatsContainer>
+      </S.ContentContainer>
+    </S.SkillsSectionContainer>
   );
 };
 

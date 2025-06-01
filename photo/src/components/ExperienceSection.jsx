@@ -1,247 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import styled from 'styled-components';
-import { colors } from '../constants/colors';
+import React, { useState, useEffect, useRef } from 'react';
+import * as S from './ExperienceSection.styles';
 import { useOverflow } from '../contexts/OverflowContext';
-
-// Styled Components
-const ExperienceContainer = styled.section`
-  padding: 60px 20px;
-  background: ${colors.surface.light || '#f5f5f5'};
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  z-index: ${props => props.$isActive ? 50 : 2};
-  box-sizing: border-box;
-`;
-
-const ContentContainer = styled.div`
-  max-width: 1000px;
-  width: 100%;
-  margin: 0 auto;
-`;
-
-const ExperienceHeader = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
-const ExperienceTitle = styled(motion.h2)`
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: ${colors.text.onLight || '#333'};
-  margin-bottom: 16px;
-  line-height: 1.2;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.75rem;
-  }
-`;
-
-const ExperienceSubtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${colors.text.body || '#666'};
-  max-width: 700px;
-  margin: 0 auto;
-  line-height: 1.6;
-`;
-
-const CareerGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-`;
-
-const CareerCard = styled(motion.div)`
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border: 1px solid #eee;
-  position: relative;
-  overflow: hidden;
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: ${props => props.$current ? '#ff4444' : '#000'};
-  }
-  
-  @media (max-width: 768px) {
-    padding: 30px 20px;
-    min-height: auto;
-  }
-`;
-
-const Period = styled.div`
-  display: inline-block;
-  background: ${props => props.$current ? '#ff4444' : '#f8f8f8'};
-  color: ${props => props.$current ? 'white' : '#333'};
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  border: ${props => props.$current ? 'none' : '1px solid #e0e0e0'};
-  width: fit-content;
-`;
-
-const Company = styled.div`
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 8px;
-  line-height: 1.3;
-`;
-
-const CompanySubtext = styled.small`
-  font-size: 14px;
-  color: #666;
-  font-weight: 400;
-  display: block;
-  margin-top: 4px;
-`;
-
-const Position = styled.div`
-  font-size: 16px;
-  color: #666;
-  font-weight: 500;
-  margin-bottom: 20px;
-`;
-
-const Description = styled.div`
-  color: #555;
-  line-height: 1.7;
-  font-size: 15px;
-  margin-bottom: 25px;
-  flex-grow: 1;
-`;
-
-const Achievement = styled.div`
-  background: #f8f9fa;
-  border-left: 3px solid ${props => props.$current ? '#ff4444' : '#000'};
-  padding: 12px 16px;
-  margin: 15px 0;
-  border-radius: 0 8px 8px 0;
-  font-size: 14px;
-  color: #555;
-`;
-
-const SkillsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-`;
-
-const SkillTag = styled.span`
-  background: #000;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #333;
-    transform: scale(1.05);
-  }
-`;
-
-const ShowMoreButton = styled.span`
-  background: #ff4444;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: #e03131;
-    transform: scale(1.05);
-  }
-`;
-
-// 스킬 태그들을 한 줄에 표시하기 위한 스타일 컴포넌트
-const FirstLineContainer = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  overflow-x: hidden;
-  margin-bottom: 8px;
-  width: 100%;
-`;
-
-// 나머지 스킬 태그들을 표시하기 위한 스타일 컴포넌트
-const RestOfSkillsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-`;
-
-const CurrentBadge = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #ff4444;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-`;
-
-const Duration = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #f0f0f0;
-  color: #666;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-`;
 
 const ExperienceSection = () => {
   const { activeSection } = useOverflow();
@@ -330,24 +89,24 @@ const ExperienceSection = () => {
   const initialSkillCount = 4; // 첫 줄에 나타낼 기술 스택 수 (+ 버튼 포함하여 5개)
 
   return (
-    <ExperienceContainer ref={experiencesRef} $isActive={isActive}>
-      <ContentContainer>
-        <ExperienceHeader>
-          <ExperienceTitle
+    <S.ExperienceSectionContainer ref={experiencesRef} $isActive={isActive}>
+      <S.ContentContainer>
+        <S.SectionHeader>
+          <S.SectionTitle
             initial={{ opacity: 0 }}
             animate={{ opacity: drawLine ? 1 : 0 }}
             transition={{ duration: 0.5 }}
           >
-            Career
-          </ExperienceTitle>
-          <ExperienceSubtitle>
+            학습과정
+          </S.SectionTitle>
+          <S.SectionSubtitle>
             새로운 도전을 통해 성장해온 여정
-          </ExperienceSubtitle>
-        </ExperienceHeader>
+          </S.SectionSubtitle>
+        </S.SectionHeader>
 
-        <CareerGrid>
+        <S.CareerGrid>
           {experiences.map((experience, index) => (
-            <CareerCard
+            <S.CareerCard
               key={experience.id}
               $current={experience.isCurrent}
               initial={{ opacity: 0, y: 30 }}
@@ -355,63 +114,63 @@ const ExperienceSection = () => {
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
               {experience.isCurrent ? (
-                <CurrentBadge>현재</CurrentBadge>
+                <S.CurrentBadge>현재</S.CurrentBadge>
               ) : (
-                <Duration>{experience.duration}</Duration>
+                <S.Duration>{experience.duration}</S.Duration>
               )}
 
-              <Period $current={experience.isCurrent}>{experience.period}</Period>
+              <S.Period $current={experience.isCurrent}>{experience.period}</S.Period>
 
-              <Company>
+              <S.Company>
                 {experience.company}
                 {experience.companySubtext && (
-                  <CompanySubtext>{experience.companySubtext}</CompanySubtext>
+                  <S.CompanySubtext>{experience.companySubtext}</S.CompanySubtext>
                 )}
-              </Company>
+              </S.Company>
 
-              <Position>{experience.position}</Position>
+              <S.Position>{experience.position}</S.Position>
 
-              <Description>{experience.description}</Description>
+              <S.Description>{experience.description}</S.Description>
 
               {experience.achievements.map((achievement, i) => (
-                <Achievement key={i} $current={experience.isCurrent}>
+                <S.Achievement key={i} $current={experience.isCurrent}>
                   {achievement}
-                </Achievement>
+                </S.Achievement>
               ))}
 
-              <SkillsContainer>
+              <S.SkillsContainer>
                 {/* 첫 번째 줄 - 고정된 수의 스킬 + 더보기 버튼 */}
-                <FirstLineContainer>
+                <S.FirstLineContainer>
                   {experience.skills.slice(0, initialSkillCount).map((skill, i) => (
-                    <SkillTag key={i} onClick={handleSkillTagClick}>
+                    <S.SkillTag key={i} onClick={handleSkillTagClick}>
                       {skill}
-                    </SkillTag>
+                    </S.SkillTag>
                   ))}
 
                   {/* 스킬이 초기 표시 개수보다 많을 경우 더보기 버튼 표시 */}
                   {experience.skills.length > initialSkillCount && (
-                    <ShowMoreButton onClick={() => toggleSkills(experience.id)}>
+                    <S.ShowMoreButton onClick={() => toggleSkills(experience.id)}>
                       {expandedSkills[experience.id] ? '접기' : `+${experience.skills.length - initialSkillCount}`}
-                    </ShowMoreButton>
+                    </S.ShowMoreButton>
                   )}
-                </FirstLineContainer>
+                </S.FirstLineContainer>
 
                 {/* 확장된 경우에만 나머지 스킬 표시 */}
                 {expandedSkills[experience.id] && (
-                  <RestOfSkillsContainer>
+                  <S.RestOfSkillsContainer>
                     {experience.skills.slice(initialSkillCount).map((skill, i) => (
-                      <SkillTag key={i} onClick={handleSkillTagClick}>
+                      <S.SkillTag key={i} onClick={handleSkillTagClick}>
                         {skill}
-                      </SkillTag>
+                      </S.SkillTag>
                     ))}
-                  </RestOfSkillsContainer>
+                  </S.RestOfSkillsContainer>
                 )}
-              </SkillsContainer>
-            </CareerCard>
+              </S.SkillsContainer>
+            </S.CareerCard>
           ))}
-        </CareerGrid>
-      </ContentContainer>
-    </ExperienceContainer>
+        </S.CareerGrid>
+      </S.ContentContainer>
+    </S.ExperienceSectionContainer>
   );
 };
 
