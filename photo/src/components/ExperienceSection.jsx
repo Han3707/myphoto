@@ -99,9 +99,6 @@ const ExperienceSection = () => {
           >
             학습과정
           </S.SectionTitle>
-          <S.SectionSubtitle>
-            새로운 도전을 통해 성장해온 여정
-          </S.SectionSubtitle>
         </S.SectionHeader>
 
         <S.CareerGrid>

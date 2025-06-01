@@ -11,15 +11,19 @@ export const ProjectsSectionContainer = styled.section`
   min-height: 100vh;
   background: ${colors.surface.light};
   width: 100%;
-  padding: ${spacing['3xl']} ${spacing.md} ${spacing['5xl']} ${spacing.md};
+  padding: ${spacing['5xl']} ${spacing.md} ${spacing['5xl']} ${spacing.md};
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: ${props => props.$isActive ? 50 : 2};
+  justify-content: center;
+  align-items: center;
+  padding-right: calc(${spacing.md} + 80px);
   
   @media ${breakpoints.media.maxMobile} {
-    padding-bottom: ${spacing['5xl']};
+    padding: ${spacing['4xl']} ${spacing.md} ${spacing['5xl']} ${spacing.md};
+    padding-right: calc(${spacing.md} + 60px);
   }
 `;
 
@@ -126,17 +130,17 @@ export const ProjectsGrid = styled.div`
 
 export const AnimatedProjectCard = styled(motion.div)`
   display: flex;
-  height: 750px;
+  height: 780px;
   width: 380px;
   
   @media ${breakpoints.media.maxTablet} {
     width: 340px;
-    height: 600px;
+    height: 640px;
   }
 
   @media ${breakpoints.media.maxMobile} {
     width: 300px;
-    height: 580px;
+    height: 620px;
   }
 `;
 
@@ -203,7 +207,7 @@ export const ProjectContentTop = styled.div`
   display: flex;
   flex-direction: column;
   padding-bottom: 10px;
-  height: 150px;
+  height: 180px;
   flex: 0 0 auto;
   width: 100%;
 `;
@@ -219,7 +223,6 @@ export const ProjectContentMiddle = styled.div`
 
 export const ProjectContentBottom = styled.div`
   flex-shrink: 0;
-  padding-top: 5px;
   margin-top: auto;
 `;
 
@@ -231,11 +234,12 @@ export const ProjectTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   width: 100%;
-  flex-shrink: 1;
+  flex-shrink: 0;
   word-wrap: break-word;
+  min-height: 52px;
 `;
 
 export const ProjectPeriod = styled.p`
@@ -252,7 +256,7 @@ export const ProjectDescription = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   width: 100%;
   flex-shrink: 1;
@@ -488,6 +492,9 @@ export const ModalTitleSection = styled.div`
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 8px;
+    word-wrap: break-word;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 `;
 

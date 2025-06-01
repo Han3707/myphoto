@@ -15,8 +15,23 @@ function App() {
   const [isScrolling, setIsScrolling] = useState(false);
   const { setActiveSection, isModalOpen, closeModal } = useOverflow();
 
+  // 네비게이션 버튼과 섹션 간의 매핑을 명시적으로 정의
+  const navButtons = [
+    { name: '홈', sectionIndex: 0, label: '홈 섹션으로 이동' },
+    { name: '기술', sectionIndex: 1, label: '기술 섹션으로 이동' },
+    { name: '경력', sectionIndex: 2, label: '경력 섹션으로 이동' },
+    { name: '프로젝트', sectionIndex: 3, label: '프로젝트 섹션으로 이동' },
+    { name: '연락처', sectionIndex: 4, label: '연락처 섹션으로 이동' }
+  ];
+
+  // 페이지 로드 시 현재 섹션 로그
+  useEffect(() => {
+    console.log(`초기 섹션: ${currentSection}`);
+  }, []);
+
   // currentSection이 변경될 때마다 OverflowContext의 activeSection 업데이트
   useEffect(() => {
+    console.log(`activeSection 업데이트: ${currentSection}`);
     setActiveSection(currentSection);
   }, [currentSection, setActiveSection]);
 
@@ -36,12 +51,21 @@ function App() {
   }, [isModalOpen]);
 
   const scrollToSection = useCallback((sectionIndex) => {
+    console.log(`scrollToSection 호출됨: ${sectionIndex}`);
+
     // 프로젝트 섹션에서 모달이 열려있는 경우 이동하지 않음
-    if (isScrolling || (currentSection === 3 && isModalOpen)) return;
+    if (isScrolling || (currentSection === 3 && isModalOpen)) {
+      console.log('스크롤 불가: 이미 스크롤 중이거나 모달이 열려있음');
+      return;
+    }
 
     setIsScrolling(true);
+    console.log(`현재 섹션: ${currentSection} -> 새 섹션: ${sectionIndex}`);
     setCurrentSection(sectionIndex);
-    setTimeout(() => setIsScrolling(false), 1000);
+    setTimeout(() => {
+      setIsScrolling(false);
+      console.log(`스크롤 완료: 현재 섹션 = ${sectionIndex}`);
+    }, 1000);
   }, [isScrolling, currentSection, isModalOpen]);
 
   const sections = useMemo(() => [
@@ -54,7 +78,10 @@ function App() {
 
   useEffect(() => {
     const handleScroll = (e) => {
-      if (isScrolling) return;
+      if (isScrolling) {
+        console.log('스크롤 이벤트 무시: 이미 스크롤 중');
+        return;
+      }
 
       // 프로젝트 섹션에서 모달이 열려있는 경우 스크롤 비활성화
       if (currentSection === 3 && isModalOpen) {
@@ -63,20 +90,36 @@ function App() {
         if (!e.target.closest('.modal-content') && !e.target.closest('.modal-body')) {
           e.preventDefault();
         }
+        console.log('스크롤 이벤트 무시: 모달이 열려있음');
         return;
       }
 
       const delta = e.deltaY;
-      if (Math.abs(delta) < 50) return;
+      if (Math.abs(delta) < 50) {
+        console.log('스크롤 이벤트 무시: 스크롤 값이 너무 작음');
+        return;
+      }
 
       setIsScrolling(true);
+      let newSection = currentSection;
+
       if (delta > 0 && currentSection < 4) {
-        setCurrentSection(prev => prev + 1);
+        // 아래로 스크롤
+        newSection = currentSection + 1;
+        console.log(`아래로 스크롤: ${currentSection} -> ${newSection}`);
+        setCurrentSection(newSection);
       } else if (delta < 0 && currentSection > 0) {
-        setCurrentSection(prev => prev - 1);
+        // 위로 스크롤
+        newSection = currentSection - 1;
+        console.log(`위로 스크롤: ${currentSection} -> ${newSection}`);
+        setCurrentSection(newSection);
+      } else {
+        console.log(`스크롤 무시: 이미 경계에 도달 (현재 섹션: ${currentSection})`);
       }
+
       setTimeout(() => {
         setIsScrolling(false);
+        console.log(`스크롤 완료: 현재 섹션 = ${newSection}`);
       }, 1000);
     };
     window.addEventListener('wheel', handleScroll, { passive: false });
@@ -98,6 +141,8 @@ function App() {
         return;
       }
 
+      let newSection = currentSection;
+
       switch (e.key) {
         case 'ArrowDown':
         case 'PageDown':
@@ -105,7 +150,8 @@ function App() {
           if (currentSection < 4) {
             e.preventDefault();
             setIsScrolling(true);
-            setCurrentSection(prev => prev + 1);
+            newSection = currentSection + 1;
+            setCurrentSection(newSection);
             setTimeout(() => setIsScrolling(false), 1000);
           }
           break;
@@ -114,7 +160,8 @@ function App() {
           if (currentSection > 0) {
             e.preventDefault();
             setIsScrolling(true);
-            setCurrentSection(prev => prev - 1);
+            newSection = currentSection - 1;
+            setCurrentSection(newSection);
             setTimeout(() => setIsScrolling(false), 1000);
           }
           break;
@@ -122,7 +169,8 @@ function App() {
           if (currentSection !== 0) {
             e.preventDefault();
             setIsScrolling(true);
-            setCurrentSection(0);
+            newSection = 0;
+            setCurrentSection(newSection);
             setTimeout(() => setIsScrolling(false), 1000);
           }
           break;
@@ -130,7 +178,8 @@ function App() {
           if (currentSection !== 4) {
             e.preventDefault();
             setIsScrolling(true);
-            setCurrentSection(4);
+            newSection = 4;
+            setCurrentSection(newSection);
             setTimeout(() => setIsScrolling(false), 1000);
           }
           break;
@@ -166,8 +215,6 @@ function App() {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: index === 2 ? fixedNavigationStyle.paddingTop || spacing.xl : '0',
-    paddingBottom: index === 2 ? `calc(${spacing['2xl']} + ${spacing.xl} + ${spacing.md} + ${spacing.md})` : '0',
     position: 'relative',
     zIndex: currentSection === index ? 50 : 1,
   });
@@ -192,78 +239,86 @@ function App() {
   // 고정 네비게이션 바 스타일 업데이트
   const fixedNavigationStyle = {
     position: 'fixed',
-    bottom: spacing['2xl'],
-    left: '50%',
-    transform: 'translateX(-50%)',
+    top: '50%',
+    right: spacing.md,
+    transform: 'translateY(-50%)',
     display: 'flex',
+    flexDirection: 'column',
     gap: spacing.sm,
-    background: 'rgba(0, 0, 0, 0.8)',  // 더 진한 배경색
-    backdropFilter: 'blur(10px)',
-    borderRadius: '50px',
-    padding: `${spacing.md} ${spacing.xl}`,
-    border: 'none',  // 테두리 제거
+    background: 'rgba(33, 33, 33, 0.85)',  // 어두운 배경으로 변경
+    backdropFilter: 'blur(8px)',
+    borderRadius: '15px',
+    padding: `${spacing.lg} ${spacing.md}`,
+    border: 'none',
     zIndex: 1000,
-    transition: 'opacity 0.3s ease, visibility 0.3s ease', // visibility 트랜지션 추가
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',  // 그림자 추가
+    transition: 'opacity 0.3s ease, visibility 0.3s ease',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
   };
 
-  // 변경 - 항상 어두운 배경으로 통일
+  // 배경색 제거
   const dynamicNavStyle = {
     ...fixedNavigationStyle,
-    background: 'rgba(0, 0, 0, 0.8)',  // 항상 어두운 배경으로 통일
-    opacity: isModalOpen ? 0 : 1, // 모달이 열려있을 때 숨김
-    visibility: isModalOpen ? 'hidden' : 'visible', // 모달이 열려있을 때 숨김
+    opacity: isModalOpen ? 0 : 1,
+    visibility: isModalOpen ? 'hidden' : 'visible',
   };
 
   const navItemStyle = {
-    color: colors.text.onDark,  // 항상 밝은 색 텍스트
+    color: '#fff',
     textDecoration: 'none',
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    padding: `${spacing.sm} ${spacing.lg}`,
-    borderRadius: '25px',
+    padding: `${spacing.md}`,
+    borderRadius: '12px',
     transition: 'all 0.3s ease',
     cursor: 'pointer',
     border: 'none',
     background: 'transparent',
     fontFamily: typography.fontFamily.body,
+    textAlign: 'center',
+    width: '100%',
+    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
   };
 
   // 프로젝트 섹션에서 모달이 열려있을 때 네비게이션 버튼에 경고 스타일 추가
   const getNavItemStyle = (targetSection) => {
+    // 기본 스타일
     const baseStyle = { ...navItemStyle };
 
+    // 모달이 열려 있는 경우
     if (currentSection === 3 && isModalOpen) {
-      // 현재 선택된 섹션에 다른 스타일 적용
+      // 현재 프로젝트 섹션이면 경고 스타일
       if (targetSection === 3) {
         return {
           ...baseStyle,
-          color: colors.accent.warning,
+          color: colors.accent.warning || '#f56565',
           background: 'rgba(255, 0, 0, 0.1)',
         };
       }
 
+      // 다른 모든 버튼은 비활성화 스타일
       return {
         ...baseStyle,
         cursor: 'not-allowed',
         opacity: 0.5,
-        color: colors.accent.warning,
+        color: colors.accent.warning || '#f56565',
       };
     }
 
-    // 현재 선택된 섹션 강조 표시
+    // 현재 선택된 섹션일 경우 (모달이 없을 때)
     if (currentSection === targetSection) {
       return {
         ...baseStyle,
         fontWeight: typography.fontWeight.bold,
-        background: 'rgba(255, 255, 255, 0.1)',
       };
     }
 
+    // 기본 스타일 반환
     return baseStyle;
   };
 
   const handleNavClick = (sectionIndex) => {
+    console.log(`네비게이션 클릭: ${sectionIndex} 섹션으로 이동 시도`);
+
     // 프로젝트 섹션에서 모달이 열려있는 경우 네비게이션 비활성화
     if (currentSection === 3 && isModalOpen) {
       // 모달을 닫으라는 알림 표시 (선택적)
@@ -271,6 +326,7 @@ function App() {
       return;
     }
 
+    // 포커스 관련 로직 제거 - 스타일링으로 처리
     scrollToSection(sectionIndex);
   };
 
@@ -300,36 +356,20 @@ function App() {
         ))}
       </main>
 
-      {/* 고정 하단 네비게이션 바 */}
+      {/* 고정 측면 네비게이션 바 */}
       <nav style={dynamicNavStyle} aria-label="메인 네비게이션">
-        <button
-          style={getNavItemStyle(1)}
-          onClick={() => handleNavClick(1)}
-          className="nav-item"
-        >
-          기술
-        </button>
-        <button
-          style={getNavItemStyle(2)}
-          onClick={() => handleNavClick(2)}
-          className="nav-item"
-        >
-          경력
-        </button>
-        <button
-          style={getNavItemStyle(3)}
-          onClick={() => handleNavClick(3)}
-          className="nav-item"
-        >
-          프로젝트
-        </button>
-        <button
-          style={getNavItemStyle(4)}
-          onClick={() => handleNavClick(4)}
-          className="nav-item"
-        >
-          연락처
-        </button>
+        {navButtons.map((button) => (
+          <button
+            key={button.sectionIndex}
+            style={getNavItemStyle(button.sectionIndex)}
+            onClick={() => handleNavClick(button.sectionIndex)}
+            className={`nav-item ${currentSection === button.sectionIndex ? 'active' : ''}`}
+            aria-label={button.label}
+            aria-current={currentSection === button.sectionIndex ? 'page' : undefined}
+          >
+            {button.name}
+          </button>
+        ))}
       </nav>
 
       <style>{`
@@ -350,10 +390,41 @@ function App() {
           color: ${colors.text.onDark} !important;
         }
 
+        /* 기본 포커스 스타일 오버라이드 */
         *:focus {
+          outline: none !important;
+        }
+
+        /* 접근성을 위한 skip-link 포커스 스타일 유지 */
+        .skip-link:focus {
           outline: 3px solid ${colors.accent.cyan} !important;
           outline-offset: 2px !important;
-          border-radius: 4px !important;
+          top: 6px;
+        }
+
+        /* 네비게이션 포커스 스타일 - 삭제하고 클래스로 처리 */
+        nav[aria-label="메인 네비게이션"] .nav-item:focus {
+          outline: none;
+        }
+
+        /* 현재 선택된 네비게이션 아이템 스타일 강화 */
+        nav[aria-label="메인 네비게이션"] .nav-item.active {
+          background: rgba(255, 255, 255, 0.3);
+          color: white;
+          font-weight: bold;
+          box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.3);
+        }
+
+        /* 고정 네비게이션 바 호버 효과 */
+        nav[aria-label="메인 네비게이션"] .nav-item:hover {
+          background: rgba(255, 255, 255, 0.2);
+          color: ${colors.accent.cyan || '#4fd1c5'};
+          transform: translateY(-2px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        nav[aria-label="메인 네비게이션"] .nav-item:active {
+          transform: translateY(0);
         }
 
         @media (prefers-contrast: high) {
@@ -471,16 +542,35 @@ function App() {
           }
         }
 
+        /* 반응형 네비게이션 */
         ${breakpoints.media.maxMobile} {
-          .navigation {
+          nav[aria-label="메인 네비게이션"] {
             right: ${spacing.sm} !important;
-            bottom: 50% !important;
+            padding: ${spacing.xs} !important;
             top: auto !important;
-            transform: translateY(50%) !important;
+            bottom: ${spacing.lg} !important;
+            transform: none !important;
+            flex-direction: row !important;
+            width: auto !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            border-radius: 30px !important;
+            background: rgba(33, 33, 33, 0.9) !important;
+            overflow-x: auto !important;
+            max-width: 95% !important;
           }
 
-          .scroll-indicator {
-            display: none !important;
+          nav[aria-label="메인 네비게이션"] .nav-item {
+            padding: ${spacing.xs} ${spacing.sm} !important;
+            font-size: ${typography.fontSize.xs} !important;
+            width: auto !important;
+            white-space: nowrap !important;
+          }
+          
+          nav[aria-label="메인 네비게이션"] .nav-item.active {
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: none !important;
+            border-radius: 20px !important;
           }
         }
 
@@ -490,47 +580,14 @@ function App() {
           transform: translateY(-1px);
         }
 
-        /* 고정 네비게이션 바 호버 효과 */
-        nav[aria-label="메인 네비게이션"] .nav-item:hover {
-          background: rgba(255, 255, 255, 0.2);
-          color: ${colors.accent.cyan};
-          transform: translateY(-2px);
-        }
-
-        nav[aria-label="메인 네비게이션"] .nav-item:active {
-          transform: translateY(0);
-        }
-
-        /* Adjust hover/active colors for light background sections */
-        ${currentSection === 1 || currentSection === 2 ? `
-          nav[aria-label="메인 네비게이션"] .nav-item:hover {
-            background: rgba(0, 0, 0, 0.15);
-            color: ${colors.primary.dark};
-          }
-        ` : ''}
-
         /* 프로젝트 섹션에서 모달이 열려있을 때 네비게이션 버튼 스타일 */
         ${currentSection === 3 && isModalOpen ? `
           nav[aria-label="메인 네비게이션"] .nav-item:hover {
-            background: rgba(255, 0, 0, 0.1);
-            color: ${colors.accent.warning};
+            background: rgba(255, 0, 0, 0.2);
+            color: ${colors.accent.warning || '#f56565'};
             transform: none;
           }
         ` : ''}
-
-        /* 반응형 네비게이션 */
-        ${breakpoints.media.maxMobile} {
-          nav[aria-label="메인 네비게이션"] {
-            bottom: ${spacing.lg} !important;
-            gap: ${spacing.sm} !important;
-            padding: ${spacing.sm} ${spacing.lg} !important;
-          }
-
-          nav[aria-label="메인 네비게이션"] .nav-item {
-            padding: ${spacing.xs} ${spacing.md} !important;
-            font-size: ${typography.fontSize.xs} !important;
-          }
-        }
       `}</style>
     </div>
   );

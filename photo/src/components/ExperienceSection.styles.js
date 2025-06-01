@@ -46,7 +46,7 @@ export const SectionHeader = styled.div`
 export const SectionTitle = styled(motion.h2)`
   font-size: ${typography.fontSize['5xl']};
   font-weight: ${typography.fontWeight.black};
-  margin-bottom: ${spacing.md};
+  margin-top: ${spacing.md};
   background: linear-gradient(to right, #222 30%, ${colors.accent.primary || '#f43f5e'} 50%, ${colors.accent.secondary || '#ec4899'} 70%, #222 90%);
   background-size: 200% auto;
   background-clip: text;
@@ -87,7 +87,7 @@ export const SectionSubtitle = styled.p`
   font-size: ${typography.fontSize.xl};
   color: ${colors.text.body};
   max-width: 36rem;
-  margin: 12px auto 0;
+  margin: 0 auto;
   line-height: ${typography.lineHeight.relaxed};
   font-weight: ${typography.fontWeight.medium};
   background: rgba(255,255,255,0.8);
