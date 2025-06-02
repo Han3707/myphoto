@@ -2,70 +2,279 @@
 export const projects = [
     {
         id: 1,
-        title: "BLE 메쉬 통신 랜턴",
-        period: "2024.07 - 현재",
-        type: "Team Project",
-        summary: "블루투스 메쉬 네트워크를 활용한 오프라인 통신 랜턴 앱입니다. 와이파이나 셀룰러 네트워크 없이도 BLE MESH망을 이용해 메시지를 주고받을 수 있습니다.",
-        role: "프론트엔드 개발 & UI/UX 디자인",
-        problem: "재난 상황에서 인터넷 연결 없이 통신할 수 있는 솔루션의 필요성.",
-        solution: "BLE Mesh 네트워크를 활용하여 분산형 메시징 시스템을 구축했습니다. Flutter로 직관적인 UI를 설계하고, 메시지 전달 신뢰성을 높이기 위한 큐 시스템을 구현했습니다.",
-        achievements: "BLE 패킷 손실률 30%에서 5%로 감소, 최대 8개 노드에서 안정적인 메시지 전달 구현",
+        title: "끌락끌락 - 클라이밍 모션 인식 앱",
+        period: "2025.01 - 2025.02(6주)",
+        type: "Team Project (FE 3 · BE 3)",
+        summary: "실내 볼더링 환경에서 손이 분필로 더럽혀져 스마트폰 터치가 불편하여 터치 없이 자동으로 등반 모션과 녹화를 해 주는 솔루션입니다.",
+        role: "Flutter camera pipeline, ML 기반 모션 튜닝, 동영상 Codec 최적화, 리더십/스크럼 운영",
+        problem: "실내 볼더링 환경에서 손이 분필(송진가루)로 더럽혀져 스마트폰 터치가 불편 → 터치 없이 자동으로 등반(모션) + 녹화를 해 주는 솔루션 필요",
+        solution: "Pose Detection 라이브러리 파라미터(각도·거리·FPS) 실험 → 오인식 최소화, 자동 녹화 파이프라인 (Flutter Camera → 실시간 인코딩 H-265 → 로컬 저장) 구축, 녹화 종료 후 스토리지 최적 화질 압축 & 썸네일 생성",
+        achievements: "자동 녹화 성공률 ≈ 100% (40+ 실험 세션), 영상 당 평균 저장 용량 35% 감소, 사용자 피드백: '터치가 필요 없어 체감 편의성 ↑'",
         color: "#ff6b7a",
         gradient: "linear-gradient(135deg, #ff6b7a 0%, #ff8a9b 100%)",
         links: {
-            github: "https://github.com/username/ble-lantern",
-            demo: "https://ble-lantern-demo.vercel.app"
+            github: "https://github.com/Han3707/team_orai_mirror",
+            demo: "https://climbing-app-demo.vercel.app"
         },
-        image: "🏮",
+        image: "🧗‍♂️",
         techDetails: [
             { name: "Flutter", level: 5 },
             { name: "Dart", level: 5 },
-            { name: "BLE", level: 4 },
-            { name: "Riverpod", level: 4 },
-            { name: "Firebase", level: 3 },
-            { name: "ML Kit", level: 3 }
+            { name: "Pose Detection", level: 4 },
+            { name: "H-265", level: 4 },
+            { name: "FFmpeg", level: 3 },
+            { name: "cached_network_image", level: 4 }
         ],
-        challenge: "인터넷 연결 없이도 사용자들이 서로 통신할 수 있는 견고한 메시징 시스템을 구축하는 것이 가장 큰 도전이었습니다.",
+        challenge: "모션 인식과 동영상 녹화를 동시에 처리하면서 오인식을 최소화하는 것이 가장 큰 도전이었습니다.",
         images: [
             {
                 title: "메인 화면",
-                description: "사용자 친화적인 메인 인터페이스로 직관적인 네비게이션과 핵심 기능들을 한눈에 볼 수 있도록 설계했습니다.",
+                description: "직관적인 인터페이스로 클라이밍 모션 인식과 녹화 기능을 쉽게 사용할 수 있습니다.",
                 src: "/assets/pj1/영상1.gif"
             },
             {
-                title: "목록 화면",
-                description: "사용자 데이터를 효율적으로 표시하는 목록 뷰로, 무한 스크롤과 검색 기능을 통해 대용량 데이터 처리를 최적화했습니다.",
+                title: "모션 인식",
+                description: "Pose Detection 기술을 활용하여 클라이밍 동작을 정확히 인식합니다.",
                 src: "/assets/pj1/캘린더.gif"
             },
             {
-                title: "상세 화면",
-                description: "상세 정보를 체계적으로 구성하여 사용자가 필요한 정보를 빠르게 찾을 수 있도록 설계한 상세 뷰입니다.",
+                title: "녹화 결과",
+                description: "고품질 영상을 효율적으로 압축하여 저장 공간을 절약합니다.",
                 src: "/assets/pj1/윙스팬.gif"
             },
             {
-                title: "기능 소개",
-                description: "주요 기능에 대한 안내 화면으로, 사용자가 앱의 핵심 기능을 쉽게 이해할 수 있도록 설계했습니다.",
+                title: "분석 화면",
+                description: "녹화된 영상을 분석하여 클라이밍 퍼포먼스를 평가합니다.",
                 src: "/assets/pj1/챌린지.gif"
             }
         ],
         metrics: [
-            { value: "30%", label: "패킷 손실 감소" },
-            { value: "8+", label: "안정적 노드 연결" },
-            { value: "95%", label: "사용자 만족도" },
-            { value: "45%", label: "전송 속도 향상" }
+            { value: "< 3%", label: "오인식 Rate" },
+            { value: "≈ 100%", label: "녹화 성공률" },
+            { value: "–35%", label: "평균 파일 크기" },
+            { value: "98%", label: "Crash-free Session" }
         ],
         techCategories: [
             {
                 name: "Frontend",
-                techs: ["Flutter", "Dart", "Provider"]
+                techs: ["Flutter", "Dart", "cached_network_image"]
             },
             {
-                name: "Backend",
-                techs: ["Firebase", "Cloud Functions"]
+                name: "ML / Media",
+                techs: ["Google Pose Detection", "FFmpeg (H-265)"]
+            },
+            {
+                name: "DevOps/Tools",
+                techs: ["Git", "Jira", "Figma", "GitLab CI"]
+            }
+        ],
+        challenges: [
+            {
+                title: "모션 오인식 다발",
+                description: "문제: 클라이밍 모션 인식 시 오인식이 자주 발생하여 정확도가 낮았습니다.",
+                solution: "해결: ① 각도·거리 매트릭스 20종 AB Test ② Confidence Score 0.85 기준선 설정으로 오인식 15% → < 3%로 개선했습니다."
+            },
+            {
+                title: "모바일 인코딩 메모리 폭주",
+                description: "문제: 고화질 영상 인코딩 시 메모리 사용량이 급증하여 앱 성능이 저하되었습니다.",
+                solution: "해결: Isolate Encode thread + 분할 버퍼링 기법을 적용하여 녹화 중 메모리 사용량 40%↓ 감소시켰습니다."
+            }
+        ]
+    },
+    {
+        id: 2,
+        title: "친환경 클라우드 펀딩 플랫폼",
+        period: "2025.02 - 2025.03(6주)",
+        type: "Team Project (FE 2 · BE 4)",
+        summary: "친환경 제품 펀딩 플랫폼으로, 실시간 펀딩 금액 표시와 판매자용 통계/정산 사이트를 제공합니다.",
+        role: "WebSocket 실시간 통신, 이미지 캐싱 전략, Flutter·React 멀티 프로젝트 관리, OAuth/JWT 보안",
+        problem: "펀딩 총액이 실시간으로 변하지만 모바일에서 지연이 길어 사용자가 불신, 판매자용 통계/정산 사이트 부재",
+        solution: "STOMP WebSocket + 최대 5-회 재연결 로직 → 네트워크 불안정 대비, cached_network_image + 리스트 가상화 → 이미지 스크롤 지연 해소, React + Vite + Zustand로 판매자·관리자 SPA 설계/구현",
+        achievements: "홈/상세 초기 로딩 2s → 0.5-1s (체감 60%↑), WebSocket 재연결 성공 100% → 실시간 금액 표시 불일치 80% 감소, 관리자 상품 등록-통계 업무 시간 -40%",
+        color: "#4ecdc4",
+        gradient: "linear-gradient(135deg, #4ecdc4 0%, #6ee5dc 100%)",
+        links: {
+            github: "https://github.com/Han3707/ssafy-funding",
+            demo: "https://eco-funding-demo.vercel.app"
+        },
+        image: "🌱",
+        techDetails: [
+            { name: "Flutter", level: 5 },
+            { name: "React/Vite", level: 4 },
+            { name: "WebSocket", level: 4 },
+            { name: "JWT", level: 3 },
+            { name: "Zustand", level: 4 },
+            { name: "cached_network_image", level: 4 }
+        ],
+        challenge: "실시간 데이터 동기화와 네트워크 불안정성 극복, 두 개의 서로 다른 프론트엔드 플랫폼 관리가 도전 과제였습니다.",
+        images: [
+            {
+                title: "모바일 앱 메인",
+                description: "사용자 친화적인 메인 인터페이스로 펀딩 프로젝트를 탐색할 수 있습니다.",
+                src: "/assets/pj2/시작_메인_홈.gif"
+            },
+            {
+                title: "실시간 펀딩 정보",
+                description: "WebSocket을 통해 실시간으로 업데이트되는 펀딩 현황과 상세 정보를 확인할 수 있습니다.",
+                src: "/assets/pj2/펀딩_상세.gif"
+            },
+            {
+                title: "판매자 대시보드",
+                description: "판매자를 위한 React 기반 관리 페이지로 통계와 정산 정보를 제공합니다.",
+                src: "/assets/pj2/관리자_대시보드.png"
+            },
+            {
+                title: "상품 관리 화면",
+                description: "판매자가 상품을 효율적으로 관리하고 통계를 확인할 수 있는 인터페이스입니다.",
+                src: "/assets/pj2/관리자_상품_관리.png"
+            }
+        ],
+        additionalImages: [
+            {
+                title: "펀딩 리스트 필터링",
+                description: "다양한 조건으로 펀딩 프로젝트를 필터링할 수 있습니다.",
+                category: "mobile",
+                src: "/assets/pj2/펀딩_리스트_필터링.gif"
+            },
+            {
+                title: "펀딩 검색",
+                description: "원하는 프로젝트를 빠르게 찾을 수 있는 검색 기능입니다.",
+                category: "mobile",
+                src: "/assets/pj2/펀딩_검색.gif"
+            },
+            {
+                title: "펀딩 결제",
+                description: "간편하고 안전한 결제 시스템을 제공합니다.",
+                category: "mobile",
+                src: "/assets/pj2/펀딩_결제.gif"
+            },
+            {
+                title: "판매자 정보",
+                description: "펀딩 프로젝트 판매자에 대한 정보를 확인할 수 있습니다.",
+                category: "mobile",
+                src: "/assets/pj2/펀딩_판매자정보.gif"
+            },
+            {
+                title: "관리자 로그인",
+                description: "보안이 강화된 관리자 로그인 화면입니다.",
+                category: "admin",
+                src: "/assets/pj2/관리자_시작_화면(로그인).png"
+            },
+            {
+                title: "상품 등록",
+                description: "새로운 펀딩 상품을 등록하는 화면입니다.",
+                category: "admin",
+                src: "/assets/pj2/관리자_상품_등록.png"
+            },
+            {
+                title: "상품 상세 및 통계",
+                description: "개별 상품의 상세 정보와 성과 통계를 확인할 수 있습니다.",
+                category: "admin",
+                src: "/assets/pj2/관리자_상품_상세_통계.png"
+            }
+        ],
+        metrics: [
+            { value: "2.0s", label: "첫 화면 FCP" },
+            { value: "55 fps", label: "이미지 렌더 FPS" },
+            { value: "100%", label: "WebSocket 재연결 성공" },
+            { value: "-40%", label: "관리자 업무 시간" }
+        ],
+        techCategories: [
+            {
+                name: "Frontend",
+                techs: ["Flutter", "Dart", "cached_network_image", "React 18", "Vite", "Zustand"]
+            },
+            {
+                name: "Backend 연동",
+                techs: ["REST", "JWT", "Spring Boot APIs"]
+            },
+            {
+                name: "Real-time",
+                techs: ["STOMP WebSocket"]
+            },
+            {
+                name: "DevOps/Tools",
+                techs: ["Git", "GitLab", "Jira", "Figma"]
+            }
+        ],
+        challenges: [
+            {
+                title: "모바일 WebSocket 끊김",
+                description: "문제: 모바일 환경에서 네트워크 변경이나 불안정 시 WebSocket 연결이 끊어져 실시간 데이터 업데이트가 중단되었습니다.",
+                solution: "해결: Exponential Backoff + Heartbeat 모니터링 시스템을 구현하여 실시간 지연 80%↓ 감소시켰습니다."
+            },
+            {
+                title: "이미지 리스트 지연",
+                description: "문제: 다수의 고해상도 이미지를 포함한 리스트 스크롤 시 UI 지연이 발생했습니다.",
+                solution: "해결: 캐싱 + 프리페칭 + List Virtualization 기법을 적용하여 스크롤 jank를 제거하고 부드러운 UI 경험을 제공했습니다."
+            }
+        ]
+    },
+    {
+        id: 3,
+        title: "BLE Mesh 오프라인 채팅 랜턴",
+        period: "2025.04 - 2025.06(7주)",
+        type: "Team Project (FE 2 · BE 4)",
+        summary: "재난·오지 환경에서 인터넷 없이 다중 노드 채팅이 가능한 BLE Mesh 기반 랜턴 앱입니다.",
+        role: "BLE Mesh 프로토콜, Kotlin Coroutines, Jetpack Compose 디자인 시스템, 오프라인 QoS",
+        problem: "재난·오지 환경에서 인터넷 없이 다중 노드 채팅 시 패킷 손실 30%+, UX·UI가 없어 사용성 ↓",
+        solution: "BLE Mesh 라우팅 프로토콜 + 로컬 큐로 재전송 알고리즘 설계, 메시지 우선순위 라우팅 → 동시 전송 충돌 완화, Jetpack Compose로 통화/채팅 8 화면 + UI 디자인 전부 1인이 구현",
+        achievements: "패킷 손실 30% → 5%, 8+ 노드 환경 45% 전송 속도 향상, UI 전환 평균 120fps 유지 → 사용자 피드백 '딜레이 체감 없음'",
+        color: "#8b5cf6",
+        gradient: "linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)",
+        links: {
+            github: "https://github.com/username/ble-mesh-lantern",
+            demo: "https://ble-mesh-lantern-demo.vercel.app"
+        },
+        image: "🔦",
+        techDetails: [
+            { name: "Kotlin", level: 5 },
+            { name: "Compose", level: 4 },
+            { name: "BLE Mesh", level: 4 },
+            { name: "Coroutines", level: 4 },
+            { name: "P2P Protocol", level: 3 }
+        ],
+        challenge: "인터넷 연결 없이 다중 노드 간 안정적인 메시지 전송과 패킷 손실 최소화가 주요 도전 과제였습니다.",
+        images: [
+            {
+                title: "메인 화면",
+                description: "Jetpack Compose로 구현한 직관적인 메인 인터페이스입니다.",
+                src: "/assets/pj1/영상1.gif"
+            },
+            {
+                title: "채팅 화면",
+                description: "오프라인 환경에서도 안정적으로 작동하는 채팅 인터페이스입니다.",
+                src: "/assets/pj1/캘린더.gif"
+            },
+            {
+                title: "네트워크 상태",
+                description: "BLE Mesh 네트워크 상태와 연결된 노드를 시각화합니다.",
+                src: "/assets/pj1/윙스팬.gif"
+            },
+            {
+                title: "설정 화면",
+                description: "사용자가 앱 설정을 쉽게 조정할 수 있는 인터페이스입니다.",
+                src: "/assets/pj1/챌린지.gif"
+            }
+        ],
+        metrics: [
+            { value: "5%", label: "패킷 손실률" },
+            { value: "45%", label: "평균 전송 지연 개선" },
+            { value: "8+", label: "최대 노드 연결" },
+            { value: "120 fps", label: "UI 전환 FPS" }
+        ],
+        techCategories: [
+            {
+                name: "Frontend (App)",
+                techs: ["Kotlin", "Jetpack Compose"]
             },
             {
                 name: "Networking",
                 techs: ["BLE Mesh", "P2P Protocol"]
+            },
+            {
+                name: "Backend(Light)",
+                techs: ["Firebase Cloud Functions (메타 로그)"]
             },
             {
                 name: "Tools",
@@ -74,181 +283,14 @@ export const projects = [
         ],
         challenges: [
             {
-                title: "BLE 연결 안정성 개선",
-                description: "문제: 네트워크 환경에 따른 불안정한 BLE 연결로 메시지 손실 발생",
-                solution: "재전송 메커니즘과 로컬 메시지 큐 시스템을 구현하여 패킷 손실률 30%에서 5%로 감소"
+                title: "패킷 손실 30%",
+                description: "문제: 다중 노드 환경에서 BLE Mesh 통신 시 패킷 손실률이 30%에 달해 메시지 전달 신뢰성이 낮았습니다.",
+                solution: "해결: 로컬 큐 + ACK 기반 재전송 메커니즘을 구현하여 패킷 손실률을 5%까지 감소시켰습니다."
             },
             {
-                title: "다중 기기 메시지 라우팅",
-                description: "문제: 여러 기기를 통한 메시지 중복 및 전달 지연 이슈",
-                solution: "효율적인 라우팅 알고리즘과 메시지 우선순위 시스템을 개발하여 전달 속도 45% 향상"
-            }
-        ]
-    },
-    {
-        id: 2,
-        title: "실시간 크라우드 펀딩 플랫폼",
-        period: "2024.01 - 2024.03",
-        type: "Team Project",
-        summary: "WebSocket을 활용한 실시간 크라우드 펀딩 플랫폼입니다. 사용자들은 프로젝트를 생성하고 실시간으로 펀딩 상태를 확인할 수 있습니다.",
-        role: "프론트엔드 개발 (Flutter)",
-        problem: "기존 펀딩 플랫폼의 실시간성 부재와 모바일 환경 최적화 미흡.",
-        solution: "Flutter와 WebSocket을 사용하여 실시간 업데이트를 구현했으며, 네트워크 불안정 상황에서도 안정적인 연결을 유지하기 위한 재연결 메커니즘을 구현했습니다.",
-        achievements: "앱 충돌률 90% 감소, 페이지 로딩 속도 60% 향상, 실시간 채팅 및 펀딩 업데이트 구현",
-        color: "#4ecdc4",
-        gradient: "linear-gradient(135deg, #4ecdc4 0%, #6ee5dc 100%)",
-        links: {
-            github: "https://github.com/username/realtime-funding",
-            demo: "https://realtime-funding-demo.vercel.app"
-        },
-        image: "💰",
-        techDetails: [
-            { name: "Flutter", level: 5 },
-            { name: "Firebase", level: 4 },
-            { name: "WebSocket", level: 4 },
-            { name: "Node.js", level: 3 },
-            { name: "Express", level: 3 }
-        ],
-        challenge: "실시간 데이터 동기화와 네트워크 불안정성 극복이 가장 큰 도전이었습니다.",
-        images: [
-            {
-                title: "메인 화면",
-                description: "사용자 친화적인 메인 인터페이스로 직관적인 네비게이션과 핵심 기능들을 한눈에 볼 수 있도록 설계했습니다.",
-                src: "/assets/pj1/영상1.gif"
-            },
-            {
-                title: "프로젝트 목록",
-                description: "다양한 펀딩 프로젝트를 효과적으로 탐색할 수 있는 인터페이스로, 필터링 및 정렬 기능을 제공합니다.",
-                src: "/assets/pj1/캘린더.gif"
-            },
-            {
-                title: "펀딩 상세",
-                description: "프로젝트 상세 정보와 실시간 펀딩 현황을 확인할 수 있는 화면으로, 직관적인 시각화를 통해 정보 전달력을 높였습니다.",
-                src: "/assets/pj1/윙스팬.gif"
-            },
-            {
-                title: "실시간 채팅",
-                description: "프로젝트 창작자와 후원자 간의 실시간 소통을 위한 채팅 기능으로, 커뮤니티 형성에 기여합니다.",
-                src: "/assets/pj1/챌린지.gif"
-            }
-        ],
-        metrics: [
-            { value: "90%", label: "충돌률 감소" },
-            { value: "60%", label: "로딩속도 향상" },
-            { value: "85%", label: "사용자 만족도" },
-            { value: "3X", label: "사용자 체류시간" }
-        ],
-        techCategories: [
-            {
-                name: "Frontend",
-                techs: ["Flutter", "Provider", "WebSocket Client"]
-            },
-            {
-                name: "Backend",
-                techs: ["Node.js", "Express", "Socket.io"]
-            },
-            {
-                name: "Database",
-                techs: ["Firebase", "Cloud Firestore"]
-            },
-            {
-                name: "DevOps",
-                techs: ["GitHub Actions", "Firebase Hosting"]
-            }
-        ],
-        challenges: [
-            {
-                title: "실시간 데이터 동기화",
-                description: "문제: 다수 사용자의 동시 접속 시 데이터 불일치 및 업데이트 지연",
-                solution: "최적화된 WebSocket 프로토콜과 상태 관리 패턴 적용으로 동기화 지연 시간 75% 단축"
-            },
-            {
-                title: "앱 크래시 해결",
-                description: "문제: 상태 관리 미흡으로 인한 앱 충돌 및 메모리 누수",
-                solution: "Provider 패턴 리팩토링과 메모리 관리 최적화로 충돌률 90% 감소, 앱 안정성 대폭 향상"
-            }
-        ]
-    },
-    {
-        id: 3,
-        title: "포트폴리오 웹사이트",
-        period: "2023.12 - 2024.01",
-        type: "Personal Project",
-        summary: "React와 다양한 애니메이션 효과를 활용한 개인 포트폴리오 웹사이트입니다.",
-        role: "디자인 & 개발",
-        problem: "기존 템플릿 기반 포트폴리오의 차별성 부재와 사용자 경험 개선 필요.",
-        solution: "React와 Framer Motion을 활용하여 인터랙티브한 애니메이션을 구현했으며, 모바일 환경에서도 최적화된 사용자 경험을 제공합니다.",
-        achievements: "성능 최적화 (Lighthouse 점수 95+), 사용자 정의 애니메이션 구현, 반응형 디자인",
-        color: "#8b5cf6",
-        gradient: "linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)",
-        links: {
-            github: "https://github.com/username/portfolio",
-            demo: "https://portfolio-demo.vercel.app"
-        },
-        image: "💼",
-        techDetails: [
-            { name: "React", level: 5 },
-            { name: "Framer Motion", level: 4 },
-            { name: "CSS/SCSS", level: 4 },
-            { name: "Vite", level: 3 }
-        ],
-        challenge: "방문자들의 관심을 끌 수 있는 독특하면서도 성능이 최적화된 포트폴리오 사이트를 만드는 것이 목표였습니다.",
-        images: [
-            {
-                title: "메인 화면",
-                description: "사용자 친화적인 메인 인터페이스로 직관적인 네비게이션과 핵심 기능들을 한눈에 볼 수 있도록 설계했습니다.",
-                src: "/assets/pj1/영상1.gif"
-            },
-            {
-                title: "프로젝트 섹션",
-                description: "프로젝트를 효과적으로 전시하는 섹션으로, 인터랙티브한 애니메이션을 통해 사용자의 관심을 유도합니다.",
-                src: "/assets/pj1/윙스팬.gif"
-            },
-            {
-                title: "스킬 섹션",
-                description: "다양한 기술 스택을 시각적으로 보여주는 섹션으로, 직관적인 이해를 돕습니다.",
-                src: "/assets/pj1/캘린더.gif"
-            },
-            {
-                title: "다크모드",
-                description: "사용자의 환경과 선호도에 맞춰 다크모드를 지원하여 최적화된 사용자 경험을 제공합니다.",
-                src: "/assets/pj1/챌린지.gif"
-            }
-        ],
-        metrics: [
-            { value: "95+", label: "Lighthouse 점수" },
-            { value: "40%", label: "로딩속도 개선" },
-            { value: "65%", label: "체류시간 증가" },
-            { value: "100%", label: "접근성 점수" }
-        ],
-        techCategories: [
-            {
-                name: "Frontend",
-                techs: ["React 18", "TypeScript", "CSS Modules"]
-            },
-            {
-                name: "Animation",
-                techs: ["Framer Motion", "React Spring", "GSAP"]
-            },
-            {
-                name: "Build Tools",
-                techs: ["Webpack", "Babel", "ESLint"]
-            },
-            {
-                name: "Deployment",
-                techs: ["Vercel", "GitHub Actions", "Lighthouse CI"]
-            }
-        ],
-        challenges: [
-            {
-                title: "애니메이션 성능 최적화",
-                description: "문제: 복잡한 애니메이션으로 인한 60fps 미달, 특히 모바일에서의 성능 저하",
-                solution: "GPU 가속 활용, will-change 속성 최적화, 애니메이션 레이어 분리로 성능 40% 개선"
-            },
-            {
-                title: "크로스 브라우저 호환성",
-                description: "문제: Safari와 Chrome 간의 CSS Grid, Flexbox 렌더링 차이",
-                solution: "PostCSS Autoprefixer 도입, 브라우저별 테스트 자동화 구축으로 호환성 100% 달성"
+                title: "다중 노드 라우팅 충돌",
+                description: "문제: 여러 노드가 동시에 메시지를 전송할 때 라우팅 충돌이 발생하여 전송 속도가 저하되었습니다.",
+                solution: "해결: 우선순위-기반 라우팅 테이블을 구현하여 전송 속도를 45% 향상시켰습니다."
             }
         ]
     }

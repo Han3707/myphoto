@@ -6,48 +6,54 @@ import { spacing } from '../constants/spacing';
 import { breakpoints } from '../constants/breakpoints';
 
 export const SkillsSectionContainer = styled.section`
-  min-height: 100vh;
+  height: 100vh;
   background: #FAFAFA;
   width: 100%;
-  padding: 100px 0 120px;
+  padding: 50px 0 70px;
   position: relative;
   z-index: ${props => props.$isActive ? 50 : 4};
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow-y: auto;
 `;
 
 export const ContentContainer = styled.div`
   max-width: 1800px;
   width: 100%;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 20px;
 `;
 
 export const SectionHeader = styled.div`
   max-width: 1280px;
-  margin: 0 auto ${spacing['2xl']};
+  margin: 0 auto ${spacing.xl};
   width: 100%;
+  padding-bottom: 10px;
 `;
 
 export const HeaderContent = styled.div`
   text-align: center;
-  margin-bottom: ${spacing['2xl']};
+  margin-bottom: ${spacing.lg};
 `;
 
 export const SectionTitle = styled(motion.h2)`
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 900;
   color: #000;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   position: relative;
 
   @media ${breakpoints.media.maxTablet} {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
   }
 
   @media ${breakpoints.media.maxMobile} {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 `;
 
@@ -64,32 +70,61 @@ export const TitleHighlight = styled.span`
 `;
 
 export const SectionSubtitle = styled.p`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   font-weight: 400;
+`;
+
+export const CategoryButtonsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+`;
+
+export const CategoryButton = styled.button`
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: ${props => props.$active ? props.$color : 'transparent'};
+  color: ${props => props.$active ? 'white' : '#333'};
+  border: 2px solid ${props => props.$color || '#ddd'};
+  font-weight: ${props => props.$active ? 'bold' : 'normal'};
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  
+  &:hover {
+    background: ${props => props.$active ? props.$color : `${props.$color}20`};
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 export const SkillsGrid = styled.div`
   display: flex;
   gap: 40px;
-  padding: 10px 20px;
+  padding: 15px 20px;
   min-width: max-content;
   justify-content: center;
 `;
 
 export const SkillCard = styled(motion.div)`
   background: white;
-  border-radius: 16px;
-  padding: ${spacing.xl};
+  border-radius: 14px;
+  padding: ${spacing.lg};
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
   overflow: hidden;
   position: relative;
-  min-height: 300px;
+  min-height: 270px;
   
   &:hover {
     transform: translateY(-5px);
@@ -109,25 +144,25 @@ export const SkillCard = styled(motion.div)`
 
 export const SkillCardHeader = styled.div`
   display: flex;
-  margin-bottom: ${spacing.lg};
+  margin-bottom: ${spacing.md};
   align-items: center;
 `;
 
 export const SkillIcon = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: ${spacing.md};
-  font-size: ${typography.fontSize['2xl']};
+  margin-right: ${spacing.sm};
+  font-size: ${typography.fontSize.xl};
   color: white;
   background: ${props => props.$gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
 `;
 
 export const SkillTitle = styled.h3`
-  font-size: ${typography.fontSize['2xl']};
+  font-size: ${typography.fontSize.xl};
   font-weight: ${typography.fontWeight.bold};
   color: ${colors.text.heading};
   margin: 0;
@@ -136,9 +171,11 @@ export const SkillTitle = styled.h3`
 
 export const SkillDescription = styled.div`
   color: #666;
+  flex: 1;
+  overflow-y: auto;
   
   ul {
-    padding-left: 20px;
+    padding-left: 18px;
     margin: 0;
   }
   
@@ -146,6 +183,14 @@ export const SkillDescription = styled.div`
     margin-bottom: 8px;
     font-size: 0.9rem;
     line-height: 1.5;
+  }
+  
+  @media (max-width: 480px) {
+    li {
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
   }
 `;
 
@@ -325,34 +370,24 @@ export const LearnMoreButton = styled.a`
   }
 `;
 
-export const CategoryNav = styled.div`
+export const CategoryNav = styled(CategoryButtonsContainer)`
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   flex-wrap: wrap;
 `;
 
-export const CategoryNavButton = styled.button`
-  background: ${props => props.$isActive ? props.$borderColor || '#ddd' : 'white'};
+export const CategoryNavButton = styled(CategoryButton)`
+  padding: 10px 18px;
+  background: ${props => props.$isActive ? props.$borderColor : 'transparent'};
   color: ${props => props.$isActive ? 'white' : '#333'};
   border: 2px solid ${props => props.$borderColor || '#ddd'};
-  border-radius: 30px;
-  padding: 10px 22px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: ${props => props.$isActive ? 'bold' : 'normal'};
+  font-size: 0.95rem;
   
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    background: ${props => props.$isActive ? props.$borderColor : 'rgba(255,255,255,0.9)'};
-  }
-  
-  @media ${breakpoints.media.maxMobile} {
-    font-size: 0.85rem;
-    padding: 8px 16px;
+    background: ${props => props.$isActive ? props.$borderColor : `${props.$borderColor}20`};
   }
 `;
 
@@ -366,15 +401,15 @@ export const ScrollControls = styled.div`
 export const ScrollButton = styled.button`
   background: white;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   z-index: 10;
   transition: all 0.3s ease;
   
@@ -384,11 +419,11 @@ export const ScrollButton = styled.button`
   }
   
   &.scroll-left {
-    margin-right: 10px;
+    margin-right: 15px;
   }
   
   &.scroll-right {
-    margin-left: 10px;
+    margin-left: 15px;
   }
 `;
 
@@ -396,7 +431,7 @@ export const ScrollHint = styled.p`
   text-align: center;
   color: #888;
   font-size: 0.9rem;
-  margin: 10px 0 30px;
+  margin: 5px 0 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -416,11 +451,11 @@ export const HintIcon = styled.span`
 export const SkillsScrollContainer = styled.div`
   width: 100%;
   overflow-x: auto;
-  padding: 20px 10px;
+  padding: 15px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   cursor: grab;
   flex: 1;
   
@@ -432,11 +467,11 @@ export const SkillsScrollContainer = styled.div`
 export const SkillCategoryGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
 `;
 
 export const CategoryGroupTitle = styled.h3`
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   margin: 0;
   text-align: center;
@@ -449,18 +484,18 @@ export const CategoryGroupTitle = styled.h3`
     bottom: -8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
+    width: 70px;
     height: 4px;
     background-color: currentColor;
     border-radius: 3px;
   }
   
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -475,14 +510,17 @@ export const CategorySkills = styled.div`
 
 export const SkillCategory = styled.div`
   background: white;
-  border-radius: 16px;
-  padding: 30px;
+  border-radius: 14px;
+  padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
-  width: 330px;
+  width: 320px;
+  height: 320px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   border-top: 5px solid ${props => props.$categoryColor || '#ddd'};
   background: linear-gradient(to bottom, rgba(${props => {
     // 색상에 따른 배경 그라데이션 효과
@@ -494,18 +532,20 @@ export const SkillCategory = styled.div`
   }}) 0%, white 15%);
   
   &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
   }
   
   @media (max-width: 768px) {
     width: 300px;
-    padding: 25px;
+    padding: 22px;
+    height: 300px;
   }
   
   @media (max-width: 480px) {
     width: 280px;
     padding: 20px;
+    height: 280px;
   }
 `;
 
@@ -513,16 +553,17 @@ export const CategoryTitle = styled.h3`
   font-size: 1.4rem;
   font-weight: 800;
   color: #000;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   
   @media (max-width: 480px) {
     font-size: 1.2rem;
+    margin-bottom: 12px;
   }
 `;
 
 export const SkillRating = styled.div`
-  margin-bottom: 20px;
-  font-size: 1.4rem;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
   color: ${props => props.$color || '#000'};
   
   .star {
@@ -533,39 +574,43 @@ export const SkillRating = styled.div`
   .star.filled {
     color: currentColor;
   }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 14px;
+  }
 `;
 
 export const StatsContainer = styled.div`
   width: 100%;
-  max-width: 1400px;
-  margin: 40px auto 0;
+  max-width: 1200px;
+  margin: 30px auto 0;
   padding: 0 20px;
 `;
 
 export const StatsSection = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
-  padding: 35px 50px;
+  gap: 40px;
+  padding: 30px 40px;
   border-radius: 16px;
   background: white;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   
   @media (max-width: 1200px) {
     grid-template-columns: repeat(4, 1fr);
-    padding: 30px;
+    padding: 25px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    padding: 25px 20px;
+    gap: 25px;
+    padding: 20px 15px;
   }
   
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 20px 15px;
+    gap: 15px;
+    padding: 15px 10px;
   }
 `;
 
@@ -575,23 +620,23 @@ export const StatItem = styled.div`
 `;
 
 export const StatNumber = styled.span`
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 900;
   color: #FF6B6B;
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 `;
 
 export const StatLabel = styled.span`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #666;
   font-weight: 600;
   text-transform: uppercase;

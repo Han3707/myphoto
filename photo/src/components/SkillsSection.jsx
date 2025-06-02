@@ -14,6 +14,8 @@ const SkillsSection = () => {
   const scrollPositionRef = useRef(0);
   const scrollDirectionRef = useRef(1); // 1: 오른쪽, -1: 왼쪽
   const [activeCategory, setActiveCategory] = useState('languages'); // 기본값: 프로그래밍 언어
+  const [isManualCategoryChange, setIsManualCategoryChange] = useState(false);
+  const autoChangeTimerRef = useRef(null);
 
   // 스킬 카테고리 데이터
   const skillCategories = [
@@ -140,8 +142,8 @@ const SkillsSection = () => {
   useEffect(() => {
     // 스크롤 애니메이션
     const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+      threshold: 0.05,
+      rootMargin: '0px 0px -30px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -176,7 +178,7 @@ const SkillsSection = () => {
     if (!container) return;
 
     let lastTimestamp = 0;
-    const scrollSpeed = 1.2; // 스크롤 속도 (높을수록 빠름)
+    const scrollSpeed = 1.2; // 스크롤 속도 조정 (낮출수록 느림)
 
     const autoScroll = (timestamp) => {
       if (!lastTimestamp) lastTimestamp = timestamp;
@@ -286,19 +288,36 @@ const SkillsSection = () => {
   // 특정 카테고리로 스크롤
   const scrollToCategory = (categoryId) => {
     setActiveCategory(categoryId); // active 상태 업데이트
-
-    const element = document.getElementById(categoryId);
-    if (element) {
-      const container = scrollContainerRef.current;
-      const elementOffset = element.offsetLeft - container.offsetLeft;
-
-      container.scrollTo({
-        left: elementOffset - 40, // 좌측 여백 추가
-        behavior: 'smooth'
-      });
-
-      scrollPositionRef.current = elementOffset - 40;
-    }
+    
+    // requestAnimationFrame을 사용하여 렌더링 후 DOM 접근을 보장
+    requestAnimationFrame(() => {
+      const element = document.getElementById(categoryId);
+      if (element) {
+        const container = scrollContainerRef.current;
+        // 컨테이너의 시작점에서 요소의 위치 계산
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const relativeOffset = elementRect.left - containerRect.left + container.scrollLeft;
+        
+        // 컨테이너 가운데로 요소 위치 조정 (가운데 정렬)
+        const centerPosition = relativeOffset - (containerRect.width / 2) + (elementRect.width / 2);
+        
+        container.scrollTo({
+          left: Math.max(0, centerPosition),
+          behavior: 'smooth'
+        });
+        
+        scrollPositionRef.current = Math.max(0, centerPosition);
+        
+        // 자동 스크롤 일시 중지
+        setIsHovering(true);
+        
+        // 2초 후 자동 스크롤 재개
+        setTimeout(() => {
+          setIsHovering(false);
+        }, 2000);
+      }
+    });
   };
 
   // 섹션이 스킬 섹션이면 z-index 값을 높게 설정
@@ -316,42 +335,90 @@ const SkillsSection = () => {
     return stars;
   };
 
-  return (
-    <S.SkillsSectionContainer $isActive={isActive}>
-      <S.ContentContainer>
-        <S.SectionTitle>한 눈에 보는 Skills</S.SectionTitle>
-        <S.SectionSubtitle>새로운 기술에 대한 자신감 100%</S.SectionSubtitle>
+  // 자동 카테고리 변경을 위한 useEffect
+  useEffect(() => {
+    // 현재 섹션이 활성화되어 있고, 수동 변경이 없을 때만 자동 변경
+    if (isActive && !isManualCategoryChange) {
+      const categoryIds = skillCategories.map(category => category.id);
+      const currentIndex = categoryIds.indexOf(activeCategory);
+      
+      // 자동 카테고리 변경 함수
+      const autoChangeCategory = () => {
+        const nextIndex = (currentIndex + 1) % categoryIds.length;
+        setActiveCategory(categoryIds[nextIndex]);
+        scrollToCategory(categoryIds[nextIndex]);
+      };
+      
+      // 5초마다 카테고리 변경
+      autoChangeTimerRef.current = setTimeout(autoChangeCategory, 5000);
+      
+      return () => {
+        if (autoChangeTimerRef.current) {
+          clearTimeout(autoChangeTimerRef.current);
+        }
+      };
+    }
+  }, [activeCategory, isActive, isManualCategoryChange, skillCategories]);
 
-        {/* 카테고리 네비게이션 */}
+  // 사용자가 수동으로 카테고리를 변경할 때 자동 변경 일시 중지
+  const handleCategoryClick = (categoryId) => {
+    // 자동 변경 타이머 취소
+    if (autoChangeTimerRef.current) {
+      clearTimeout(autoChangeTimerRef.current);
+    }
+    
+    setActiveCategory(categoryId);
+    setIsManualCategoryChange(true);
+    scrollToCategory(categoryId);
+    
+    // 10초 후에 자동 변경 다시 활성화
+    setTimeout(() => {
+      setIsManualCategoryChange(false);
+    }, 10000);
+  };
+
+  return (
+    <S.SkillsSectionContainer id="skills" $isActive={isActive}>
+      <S.ContentContainer>
+        <S.SectionHeader>
+          <S.HeaderContent>
+            <S.SectionTitle
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <S.TitleText>끊임없이 </S.TitleText>
+              <S.TitleHighlight>성장하는 개발 역량</S.TitleHighlight>
+            </S.SectionTitle>
+            <S.SectionSubtitle>
+              다양한 기술 스택으로 문제를 해결합니다
+            </S.SectionSubtitle>
+          </S.HeaderContent>
+        </S.SectionHeader>
+
         <S.CategoryNav>
-          {skillCategories.map((category) => (
+          {skillCategories.map(category => (
             <S.CategoryNavButton
               key={category.id}
-              $borderColor={category.color}
               $isActive={activeCategory === category.id}
-              onClick={() => scrollToCategory(category.id)}
+              $borderColor={category.color}
+              onClick={() => handleCategoryClick(category.id)}
             >
               {category.title}
             </S.CategoryNavButton>
           ))}
         </S.CategoryNav>
 
-        {/* 스크롤 컨트롤 버튼 */}
         <S.ScrollControls>
-          <S.ScrollButton
-            className="scroll-left"
-            onClick={() => scrollTo('left')}
-            aria-label="왼쪽으로 스크롤"
-          >
-            &#10094;
+          <S.ScrollButton className="scroll-left" onClick={() => scrollTo('left')}>
+            ◀
           </S.ScrollButton>
-
           <S.SkillsScrollContainer
             ref={scrollContainerRef}
             onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
             onMouseEnter={handleMouseEnter}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -376,8 +443,8 @@ const SkillsSection = () => {
                         </S.SkillRating>
                         <S.SkillDescription>
                           <ul>
-                            {skill.description.map((item, i) => (
-                              <li key={i}>{item}</li>
+                            {skill.description.map((desc, i) => (
+                              <li key={i}>{desc}</li>
                             ))}
                           </ul>
                         </S.SkillDescription>
@@ -388,43 +455,15 @@ const SkillsSection = () => {
               ))}
             </S.SkillsGrid>
           </S.SkillsScrollContainer>
-
-          <S.ScrollButton
-            className="scroll-right"
-            onClick={() => scrollTo('right')}
-            aria-label="오른쪽으로 스크롤"
-          >
-            &#10095;
+          <S.ScrollButton className="scroll-right" onClick={() => scrollTo('right')}>
+            ▶
           </S.ScrollButton>
         </S.ScrollControls>
-
-        {/* 스크롤 안내 */}
+        
         <S.ScrollHint>
-          <S.HintIcon>👆</S.HintIcon>
-          카드를 드래그하여 더 많은 스킬을 확인하세요
+          <S.HintIcon>↔️</S.HintIcon>
+          가로로 스크롤하여 더 많은 기술을 확인하세요
         </S.ScrollHint>
-
-        {/* 통계 섹션 */}
-        <S.StatsContainer>
-          <S.StatsSection>
-            <S.StatItem>
-              <S.StatNumber>1년+</S.StatNumber>
-              <S.StatLabel>개발 경력</S.StatLabel>
-            </S.StatItem>
-            <S.StatItem>
-              <S.StatNumber>3+</S.StatNumber>
-              <S.StatLabel>프로젝트</S.StatLabel>
-            </S.StatItem>
-            <S.StatItem>
-              <S.StatNumber>10+</S.StatNumber>
-              <S.StatLabel>기술 스택</S.StatLabel>
-            </S.StatItem>
-            <S.StatItem>
-              <S.StatNumber>100%</S.StatNumber>
-              <S.StatLabel>새로운 기술 자신감</S.StatLabel>
-            </S.StatItem>
-          </S.StatsSection>
-        </S.StatsContainer>
       </S.ContentContainer>
     </S.SkillsSectionContainer>
   );

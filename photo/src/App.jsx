@@ -197,6 +197,7 @@ function App() {
     fontFamily: typography.fontFamily.body,
     background: colors.gradients.heroDepth,
     position: 'relative',
+    overflow: 'hidden',
   };
 
   const sectionsContainerStyle = {
@@ -348,9 +349,15 @@ function App() {
         메인 콘텐츠로 건너뛰기
       </a>
 
-      <main style={{ ...sectionsContainerStyle }} role="main" aria-label="포트폴리오 메인 콘텐츠">
+      <main style={{ ...sectionsContainerStyle }} role="main" aria-label="포트폴리오 메인 콘텐츠" className="sections-container">
         {sections.map((section, index) => (
-          <div style={sectionStyle(index)} id={section.id} key={section.id} tabIndex="-1">
+          <div 
+            style={sectionStyle(index)} 
+            id={section.id} 
+            key={section.id} 
+            tabIndex="-1"
+            className="section-content"
+          >
             {index === 2 ? React.cloneElement(section.component, { currentSection }) : section.component}
           </div>
         ))}
@@ -377,7 +384,39 @@ function App() {
           font-family: ${typography.fontFamily.body};
           background: ${colors.primary.dark};
           color: ${colors.text.onDark};
+          margin: 0;
+          padding: 0;
           /* overflow: hidden; */
+        }
+        
+        /* 추가된 스타일 */
+        html, body {
+          height: 100%;
+          overflow: hidden;
+        }
+        
+        /* 노트북 화면에 맞춘 섹션 패딩 */
+        @media (max-height: 800px) {
+          .section-content {
+            padding-top: ${spacing.md};
+            padding-bottom: ${spacing.md};
+          }
+          
+          .section-title {
+            margin-bottom: ${spacing.sm};
+          }
+          
+          .section-subtitle {
+            margin-bottom: ${spacing.md};
+          }
+        }
+        
+        /* 모바일 화면 조정을 위한 미디어 쿼리 */
+        @media (max-height: 700px) {
+          .sections-container > div {
+            padding-top: 10px;
+            padding-bottom: 10px;
+          }
         }
 
         .surface-light {

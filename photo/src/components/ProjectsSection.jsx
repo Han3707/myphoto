@@ -10,6 +10,16 @@ import { projects } from '../constants/projectData';
 const ProjectModalContent = ({ project, activeImageIndex, changeImage, closeModal, color, gradient, type, period, techDetails, images, problem, solution, achievements, role, metrics, techCategories, challenges, links }) => {
   // 이 컴포넌트는 기존 ModalOverlay 내부의 모든 UI와 로직을 포함합니다.
   // props로 필요한 모든 데이터와 함수를 전달받습니다.
+  const [showAdditionalImages, setShowAdditionalImages] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  // 추가 이미지가 있는지 확인
+  const hasAdditionalImages = project.additionalImages && project.additionalImages.length > 0;
+  
+  // 표시할 추가 이미지 필터링
+  const filteredAdditionalImages = project.additionalImages?.filter(img => 
+    activeCategory === 'all' || img.category === activeCategory
+  ) || [];
 
   // 모달 내부에서 마우스 휠 이벤트 처리
   const handleWheel = (e) => {
@@ -86,24 +96,137 @@ const ProjectModalContent = ({ project, activeImageIndex, changeImage, closeModa
                 ))}
               </S.ThumbnailContainer>
             </S.ImageGallery>
+            
+            {/* 추가 이미지 영역 */}
+            {hasAdditionalImages && (
+              <S.AdditionalImagesSection>
+                <S.ShowMoreButton 
+                  onClick={() => setShowAdditionalImages(!showAdditionalImages)}
+                >
+                  {showAdditionalImages ? '접기' : '+ 더 많은 이미지 보기'}
+                </S.ShowMoreButton>
+                
+                {showAdditionalImages && (
+                  <>
+                    <S.CategoryFilter>
+                      <S.CategoryButton 
+                        $active={activeCategory === 'all'}
+                        onClick={() => setActiveCategory('all')}
+                      >
+                        전체
+                      </S.CategoryButton>
+                      <S.CategoryButton 
+                        $active={activeCategory === 'mobile'}
+                        onClick={() => setActiveCategory('mobile')}
+                      >
+                        모바일 앱
+                      </S.CategoryButton>
+                      <S.CategoryButton 
+                        $active={activeCategory === 'admin'}
+                        onClick={() => setActiveCategory('admin')}
+                      >
+                        관리자 페이지
+                      </S.CategoryButton>
+                    </S.CategoryFilter>
+                    
+                    <S.AdditionalImagesGrid>
+                      {filteredAdditionalImages.map((image, idx) => (
+                        <S.AdditionalImageItem key={idx}>
+                          <S.AdditionalImage>
+                            <img src={image.src} alt={image.title} />
+                          </S.AdditionalImage>
+                          <S.AdditionalImageInfo>
+                            <h4>{image.title}</h4>
+                            <p>{image.description}</p>
+                            <S.CategoryTag>
+                              {image.category === 'mobile' ? '모바일' : '관리자'}
+                            </S.CategoryTag>
+                          </S.AdditionalImageInfo>
+                        </S.AdditionalImageItem>
+                      ))}
+                    </S.AdditionalImagesGrid>
+                  </>
+                )}
+              </S.AdditionalImagesSection>
+            )}
           </S.ImageGallerySection>
 
           <S.DetailGrid>
-            <S.DetailCard className="problem">
+            <S.DetailCard className="problem" ref={el => {
+              // :has() 선택자를 지원하지 않는 브라우저를 위한 대체 코드
+              if (el) setTimeout(() => {
+                const pEl = el.querySelector('p');
+                if (pEl && pEl.scrollHeight > pEl.clientHeight) {
+                  el.classList.add('has-overflow');
+                } else {
+                  el.classList.remove('has-overflow');
+                }
+              }, 10);
+            }}>
               <h3>🎯 해결하고자 한 문제</h3>
-              <p>{problem}</p>
+              <p ref={el => {
+                if (el) {
+                  // 콘텐츠가 넘치는지 확인
+                  el.classList.toggle('overflow', el.scrollHeight > el.clientHeight);
+                }
+              }}>{problem}</p>
             </S.DetailCard>
-            <S.DetailCard className="solution">
+            <S.DetailCard className="solution" ref={el => {
+              // :has() 선택자를 지원하지 않는 브라우저를 위한 대체 코드
+              if (el) setTimeout(() => {
+                const pEl = el.querySelector('p');
+                if (pEl && pEl.scrollHeight > pEl.clientHeight) {
+                  el.classList.add('has-overflow');
+                } else {
+                  el.classList.remove('has-overflow');
+                }
+              }, 10);
+            }}>
               <h3>💡 해결 방안</h3>
-              <p>{solution}</p>
+              <p ref={el => {
+                if (el) {
+                  // 콘텐츠가 넘치는지 확인
+                  el.classList.toggle('overflow', el.scrollHeight > el.clientHeight);
+                }
+              }}>{solution}</p>
             </S.DetailCard>
-            <S.DetailCard className="result">
+            <S.DetailCard className="result" ref={el => {
+              // :has() 선택자를 지원하지 않는 브라우저를 위한 대체 코드
+              if (el) setTimeout(() => {
+                const pEl = el.querySelector('p');
+                if (pEl && pEl.scrollHeight > pEl.clientHeight) {
+                  el.classList.add('has-overflow');
+                } else {
+                  el.classList.remove('has-overflow');
+                }
+              }, 10);
+            }}>
               <h3>📊 달성 결과</h3>
-              <p>{achievements}</p>
+              <p ref={el => {
+                if (el) {
+                  // 콘텐츠가 넘치는지 확인
+                  el.classList.toggle('overflow', el.scrollHeight > el.clientHeight);
+                }
+              }}>{achievements}</p>
             </S.DetailCard>
-            <S.DetailCard className="learning">
+            <S.DetailCard className="learning" ref={el => {
+              // :has() 선택자를 지원하지 않는 브라우저를 위한 대체 코드
+              if (el) setTimeout(() => {
+                const pEl = el.querySelector('p');
+                if (pEl && pEl.scrollHeight > pEl.clientHeight) {
+                  el.classList.add('has-overflow');
+                } else {
+                  el.classList.remove('has-overflow');
+                }
+              }, 10);
+            }}>
               <h3>🚀 습득한 역량</h3>
-              <p>{role}</p>
+              <p ref={el => {
+                if (el) {
+                  // 콘텐츠가 넘치는지 확인
+                  el.classList.toggle('overflow', el.scrollHeight > el.clientHeight);
+                }
+              }}>{role}</p>
             </S.DetailCard>
           </S.DetailGrid>
 
@@ -276,12 +399,12 @@ const ProjectsSection = () => {
       <S.ProjectsRow>
         <S.ProjectsScrollContainer>
           <S.ProjectsGrid>
-            {projects.map((project, idx) => (
+            {projects.map((project) => (
               <S.AnimatedProjectCard
                 key={project.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={drawLine ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: idx * 0.2 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
               >
                 <S.ProjectCard
                   onClick={(e) => openModalHandler(project, e)}
@@ -310,7 +433,18 @@ const ProjectsSection = () => {
 
                     <S.ProjectContentMiddle>
                       <S.ProjectSections>
-                        <S.Section className="contribution">
+                        <S.Section className="contribution" ref={el => {
+                          if (el) {
+                            setTimeout(() => {
+                              const contentEl = el.querySelector('div');
+                              if (contentEl && contentEl.scrollHeight > contentEl.clientHeight) {
+                                el.classList.add('has-overflow');
+                              } else {
+                                el.classList.remove('has-overflow');
+                              }
+                            }, 10);
+                          }
+                        }}>
                           <S.SectionHeading>
                             <span>🎯</span>
                             <span>문제 정의</span>
@@ -318,7 +452,18 @@ const ProjectsSection = () => {
                           <S.SectionContent>{project.problem}</S.SectionContent>
                         </S.Section>
 
-                        <S.Section className="skills">
+                        <S.Section className="skills" ref={el => {
+                          if (el) {
+                            setTimeout(() => {
+                              const contentEl = el.querySelector('div');
+                              if (contentEl && contentEl.scrollHeight > contentEl.clientHeight) {
+                                el.classList.add('has-overflow');
+                              } else {
+                                el.classList.remove('has-overflow');
+                              }
+                            }, 10);
+                          }
+                        }}>
                           <S.SectionHeading>
                             <span>💡</span>
                             <span>해결 방법</span>
@@ -326,7 +471,18 @@ const ProjectsSection = () => {
                           <S.SectionContent>{project.solution}</S.SectionContent>
                         </S.Section>
 
-                        <S.Section className="achievement">
+                        <S.Section className="achievement" ref={el => {
+                          if (el) {
+                            setTimeout(() => {
+                              const contentEl = el.querySelector('div');
+                              if (contentEl && contentEl.scrollHeight > contentEl.clientHeight) {
+                                el.classList.add('has-overflow');
+                              } else {
+                                el.classList.remove('has-overflow');
+                              }
+                            }, 10);
+                          }
+                        }}>
                           <S.SectionHeading>
                             <span>🚀</span>
                             <span>성과</span>

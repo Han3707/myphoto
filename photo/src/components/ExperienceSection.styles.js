@@ -6,17 +6,25 @@ import { spacing } from '../constants/spacing';
 import { breakpoints } from '../constants/breakpoints';
 
 export const ExperienceSectionContainer = styled.section`
-  min-height: 100vh;
+  min-height: 100%;
   background: ${colors.surface.light || '#f5f5f5'};
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: ${spacing['3xl']} ${spacing.md};
   box-sizing: border-box;
   position: relative;
   z-index: ${props => props.$isActive ? 50 : 2};
+  
+  @media (max-height: 800px) {
+    padding: ${spacing['2xl']} ${spacing.md};
+  }
+  
+  @media (max-height: 700px) {
+    padding: ${spacing.xl} ${spacing.md};
+  }
 `;
 
 export const ContentContainer = styled.div`
@@ -284,51 +292,64 @@ export const Duration = styled.div`
   font-weight: 600;
 `;
 
-export const Timeline = styled.div`
-  max-width: 1280px;
-  margin: 0 auto;
-  padding-top: ${spacing.xl};
-  position: relative;
+export const TimelineContainer = styled.div`
+  max-width: 1200px;
   width: 100%;
+  margin: 0 auto;
+  position: relative;
+  padding: ${spacing.xl} 0;
   
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     bottom: 0;
     left: 50%;
+    width: 4px;
+    background: ${colors.accent.secondary || '#9333ea'};
     transform: translateX(-50%);
-    width: 2px;
-    background-image: ${props => props.$drawLine
-    ? `linear-gradient(to bottom, ${colors.accent.primary}, ${colors.accent.secondary})`
-    : 'linear-gradient(to bottom, transparent, transparent)'};
-    background-size: 100% ${props => props.$drawLine ? '100%' : '0%'};
-    background-repeat: no-repeat;
-    transition: background-size 1.5s ease-out;
-    
-    @media ${breakpoints.media.maxTablet} {
-      left: 80px;
+  }
+  
+  @media ${breakpoints.media.maxTablet} {
+    &::before {
+      left: 30px;
     }
-    
-    @media ${breakpoints.media.maxMobile} {
-      left: 20px;
-    }
+  }
+  
+  @media (max-height: 800px) {
+    padding: ${spacing.lg} 0;
+  }
+  
+  @media (max-height: 700px) {
+    padding: ${spacing.md} 0;
   }
 `;
 
-export const TimelineItem = styled(motion.div)`
+export const TimelineItem = styled.div`
   display: flex;
-  margin-bottom: ${spacing['2xl']};
+  justify-content: ${props => props.$isEven ? 'flex-start' : 'flex-end'};
+  padding: ${spacing.xl} 0;
   position: relative;
-  justify-content: ${props => props.$isLeft ? 'flex-start' : 'flex-end'};
   
   @media ${breakpoints.media.maxTablet} {
-    justify-content: flex-end;
-    padding-left: 100px;
+    justify-content: flex-start;
+    padding-left: 60px;
   }
   
-  @media ${breakpoints.media.maxMobile} {
-    padding-left: 40px;
+  @media (max-height: 800px) {
+    padding: ${spacing.lg} 0;
+    
+    @media ${breakpoints.media.maxTablet} {
+      padding-left: 50px;
+    }
+  }
+  
+  @media (max-height: 700px) {
+    padding: ${spacing.md} 0;
+    
+    @media ${breakpoints.media.maxTablet} {
+      padding-left: 45px;
+    }
   }
 `;
 
@@ -356,37 +377,83 @@ export const TimelineMarker = styled.div`
 `;
 
 export const TimelineContent = styled.div`
-  width: 45%;
   background: white;
+  padding: ${spacing.lg} ${spacing.xl};
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: ${spacing.lg};
+  width: 45%;
   position: relative;
+  z-index: 10;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   
-  &::before {
-    content: "";
-    position: absolute;
-    top: 20px;
-    width: 0;
-    height: 0;
-    border: 12px solid transparent;
-    ${props => props.$isLeft
-    ? `right: -24px; border-left-color: white;`
-    : `left: -24px; border-right-color: white;`}
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
   
   @media ${breakpoints.media.maxTablet} {
     width: 100%;
-    
-    &::before {
-      left: -24px;
-      border-right-color: white;
-      border-left-color: transparent;
-    }
   }
   
-  @media ${breakpoints.media.maxMobile} {
-    padding: ${spacing.md};
+  @media (max-height: 800px) {
+    padding: ${spacing.md} ${spacing.lg};
+  }
+  
+  @media (max-height: 700px) {
+    padding: ${spacing.sm} ${spacing.md};
+  }
+`;
+
+export const TimelineTitle = styled.h3`
+  font-size: ${typography.fontSize.xl};
+  font-weight: ${typography.fontWeight.bold};
+  color: ${colors.text.heading};
+  margin: 0 0 ${spacing.sm};
+  
+  @media (max-height: 800px) {
+    font-size: ${typography.fontSize.lg};
+    margin: 0 0 ${spacing.xs};
+  }
+  
+  @media (max-height: 700px) {
+    font-size: ${typography.fontSize.base};
+    margin: 0 0 4px;
+  }
+`;
+
+export const TimelineSubtitle = styled.h4`
+  font-size: ${typography.fontSize.lg};
+  font-weight: ${typography.fontWeight.semibold};
+  color: ${colors.accent.primary || '#f43f5e'};
+  margin: 0 0 ${spacing.sm};
+  
+  @media (max-height: 800px) {
+    font-size: ${typography.fontSize.base};
+    margin: 0 0 ${spacing.xs};
+  }
+  
+  @media (max-height: 700px) {
+    font-size: ${typography.fontSize.sm};
+    margin: 0 0 4px;
+  }
+`;
+
+export const TimelineDescription = styled.p`
+  font-size: ${typography.fontSize.base};
+  line-height: ${typography.lineHeight.relaxed};
+  color: ${colors.text.body};
+  margin-bottom: ${spacing.sm};
+  
+  @media (max-height: 800px) {
+    font-size: ${typography.fontSize.sm};
+    line-height: ${typography.lineHeight.normal};
+    margin-bottom: ${spacing.xs};
+  }
+  
+  @media (max-height: 700px) {
+    font-size: ${typography.fontSize.xs};
+    line-height: 1.4;
+    margin-bottom: 4px;
   }
 `;
 
@@ -443,12 +510,6 @@ export const JobTitle = styled.p`
   color: ${colors.text.body};
   margin: 0;
   font-weight: ${typography.fontWeight.medium};
-`;
-
-export const TimelineDescription = styled.div`
-  color: ${colors.text.body};
-  font-size: ${typography.fontSize.sm};
-  line-height: ${typography.lineHeight.relaxed};
 `;
 
 export const Responsibilities = styled.ul`

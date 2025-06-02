@@ -56,7 +56,7 @@ const ContactSection = () => {
             이메일 보내기
           </S.PrimaryButton>
 
-          <S.SecondaryButton href="https://github.com/hanmin-kim" target="_blank" rel="noopener noreferrer">
+          <S.SecondaryButton href="https://github.com/Han3707" target="_blank" rel="noopener noreferrer">
             <GithubIcon />
             GitHub
           </S.SecondaryButton>
@@ -69,7 +69,7 @@ const ContactSection = () => {
 
         <S.ContactInfo className="info-animation">
           <S.ContactInfoText>빠른 응답을 원하신다면</S.ContactInfoText>
-          <S.ContactEmail href="mailto:contact@hanmin.dev">contact@hanmin.dev</S.ContactEmail>
+          <S.ContactEmail href="mailto:contact@hanmin.dev">gksals9563@gmail.com</S.ContactEmail>
         </S.ContactInfo>
       </S.ContactContent>
 
